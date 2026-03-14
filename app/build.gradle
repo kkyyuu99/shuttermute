@@ -7,6 +7,12 @@ android {
     compileSdkVersion 36
     buildToolsVersion "35.0.0"
 
+    signingConfigs {
+        release {
+            initWith signingConfigs.debug
+        }
+    }
+
     defaultConfig {
         applicationId "android.com.ericswpark.camsung"
         minSdkVersion 22
@@ -21,6 +27,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
