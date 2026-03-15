@@ -315,8 +315,8 @@ function Try-EnableVibrateMode {
     )
 
     $attempts = @(
-        @('shell', 'cmd', 'audio', 'set-ringer-mode', 'vibrate'),
-        @('shell', 'cmd', 'audio', 'set-ringer-mode', '1')
+        @('shell', 'cmd', 'audio', 'set-ringer-mode', 'VIBRATE'),
+        @('shell', 'cmd', 'audio', 'set-ringer-mode', 'SILENT')
     )
 
     foreach ($attempt in $attempts) {
