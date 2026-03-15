@@ -8,6 +8,15 @@ Files:
 - `..\OneClick-InstallMute.bat`: double-click to install the APK and set camera mute
 - `..\OneClick-Unmute.bat`: double-click to restore shutter sound
 
+Startup language options:
+
+- Korean
+- English
+- Japanese
+- Simplified Chinese
+- Spanish
+- French
+
 What the install + mute flow does:
 
 1. Finds `adb.exe`
@@ -20,5 +29,6 @@ What the install + mute flow does:
 Notes:
 
 - If USB debugging is off, the tool now pauses and shows Samsung-specific steps before retrying.
+- The tool asks for a language when it starts.
 - The best-effort vibrate step may not work on every device build.
 - If the phone is already connected and authorized, `OneClick-InstallMute.bat` is the fastest path.

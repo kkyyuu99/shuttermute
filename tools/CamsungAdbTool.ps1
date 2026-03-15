@@ -1,9 +1,12 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [ValidateSet('InstallMute', 'Unmute', 'OpenApp')]
     [string]$Action = 'InstallMute',
     [switch]$NoGui,
-    [switch]$TrySetVibrateMode
+    [switch]$TrySetVibrateMode,
+    [switch]$PauseOnExit,
+    [ValidateSet('ko', 'en', 'ja', 'zh-Hans', 'es', 'fr')]
+    [string]$Language
 )
 
 Set-StrictMode -Version Latest
@@ -16,164 +19,214 @@ $script:MainActivity = 'android.com.ericswpark.camsung/.MainActivity'
 $script:CameraSettingKey = 'csc_pref_camera_forced_shuttersound_key'
 $script:RepoRoot = Split-Path -Path $PSScriptRoot -Parent
 $script:DefaultApkPath = Join-Path $script:RepoRoot 'app\build\outputs\apk\release\app-release.apk'
-$script:LogTextBox = $null
-$script:TrySetVibrateModeEnabled = $TrySetVibrateMode.IsPresent
 $script:IsNoGuiMode = $NoGui.IsPresent
+$script:TrySetVibrateModeEnabled = $TrySetVibrateMode.IsPresent
+$script:LogTextBox = $null
+$script:CurrentLanguage = 'en'
+$script:LanguageOptions = @(
+    [PSCustomObject]@{ Code = 'ko'; Label = 'Korean' }
+    [PSCustomObject]@{ Code = 'en'; Label = 'English' }
+    [PSCustomObject]@{ Code = 'ja'; Label = 'Japanese' }
+    [PSCustomObject]@{ Code = 'zh-Hans'; Label = 'Chinese (Simplified)' }
+    [PSCustomObject]@{ Code = 'es'; Label = 'Spanish' }
+    [PSCustomObject]@{ Code = 'fr'; Label = 'French' }
+)
+$script:FallbackStrings = Import-PowerShellDataFile (Join-Path $PSScriptRoot 'lang\en.psd1')
+$script:Strings = $script:FallbackStrings
+
+function Get-Text {
+    param([string]$Key)
+
+    if ($script:Strings.ContainsKey($Key)) { return $script:Strings[$Key] }
+    if ($script:FallbackStrings.ContainsKey($Key)) { return $script:FallbackStrings[$Key] }
+    return $Key
+}
+
+function Set-Language {
+    param([string]$Code)
+
+    $script:CurrentLanguage = $Code
+    $path = Join-Path $PSScriptRoot ("lang\{0}.psd1" -f $Code)
+    if (Test-Path $path) {
+        $script:Strings = Import-PowerShellDataFile $path
+    } else {
+        $script:Strings = $script:FallbackStrings
+    }
+}
 
 function Write-Log {
     param([string]$Message)
 
-    $timestamp = Get-Date -Format 'HH:mm:ss'
-    $line = "[$timestamp] $Message"
+    $line = '[{0}] {1}' -f (Get-Date -Format 'HH:mm:ss'), $Message
     Write-Host $line
-
     if ($script:LogTextBox) {
         $script:LogTextBox.AppendText($line + [Environment]::NewLine)
         [System.Windows.Forms.Application]::DoEvents()
     }
 }
 
-function Get-ConnectionGuidanceText {
-    param(
-        [Parameter(Mandatory = $false)]
-        [object[]]$Devices = @()
-    )
+function Resolve-DefaultLanguageCode {
+    $name = [System.Globalization.CultureInfo]::CurrentUICulture.Name
+    switch -Regex ($name) {
+        '^ko' { return 'ko' }
+        '^ja' { return 'ja' }
+        '^zh' { return 'zh-Hans' }
+        '^es' { return 'es' }
+        '^fr' { return 'fr' }
+        default { return 'en' }
+    }
+}
 
-    $header = @(
-        'ADB ?곌껐 以鍮꾧? ?꾩슂?⑸땲??',
-        '',
-        '?쇱꽦?곗뿉??USB ?붾쾭源?耳쒕뒗 諛⑸쾿:',
-        '1. ???좉툑???댁젣?⑸땲??',
-        '2. ?ㅼ젙 > ?대??꾪솕 ?뺣낫 > ?뚰봽?몄썾???뺣낫濡??대룞?⑸땲??',
-        '3. "鍮뚮뱶踰덊샇"瑜?7踰??곗냽?쇰줈 ?뚮윭 媛쒕컻???듭뀡???쒖꽦?뷀빀?덈떎.',
-        '4. ?ㅼ젙 硫붿씤?쇰줈 ?뚯븘媛??媛쒕컻???듭뀡 硫붾돱瑜??쎈땲??',
-        '5. "USB ?붾쾭源???耳?땲??',
-        '6. USB 耳?대툝???ㅼ떆 ?곌껐?섍퀬, 媛?ν븯硫?USB ?ъ슜 紐⑤뱶瑜?"?뚯씪 ?꾩넚"?쇰줈 諛붽퓠?덈떎.',
-        '7. ???붾㈃??"USB ?붾쾭源낆쓣 ?덉슜?섏떆寃좎뒿?덇퉴?" ?앹뾽?먯꽌 "??긽 ??而댄벂?곗뿉???덉슜" 泥댄겕 ???덉슜???꾨쫭?덈떎.',
-        '',
-        '?앹뾽?????⑤㈃:',
-        '- 耳?대툝??類먮떎媛 ?ㅼ떆 ?곌껐?⑸땲??',
-        '- 媛쒕컻???듭뀡?먯꽌 USB ?붾쾭源낆쓣 猿먮떎媛 ?ㅼ떆 耳?땲??',
-        '- PC 紐낅졊李쎌뿉??adb kill-server ???ㅼ떆 ?쒕룄?⑸땲??',
-        '- ???붾㈃??爰쇱졇 ?덉? ?딆?吏 ?뺤씤?⑸땲??'
-    )
+function Select-LanguageConsole {
+    param([string]$DefaultCode)
 
-    if ($Devices.Count -gt 0) {
-        $states = $Devices | ForEach-Object { "$($_.Serial) ($($_.State))" }
-        $header += ''
-        $header += '?꾩옱 媛먯????곹깭:'
-        $header += $states
-
-        if (($Devices | Where-Object { $_.State -eq 'unauthorized' }).Count -gt 0) {
-            $header += ''
-            $header += '吏湲덉? ?곗씠 ?곌껐?섏뿀吏留?RSA ?뱀씤 ???곹깭?낅땲??'
-            $header += '???붾㈃?먯꽌 USB ?붾쾭源??덉슜 ?앹뾽???뱀씤?섎㈃ 諛붾줈 ?ㅼ쓬 ?④퀎濡?吏꾪뻾?⑸땲??'
+    while ($true) {
+        Write-Host ''
+        Write-Host 'Choose language'
+        for ($i = 0; $i -lt $script:LanguageOptions.Count; $i++) {
+            $option = $script:LanguageOptions[$i]
+            $suffix = if ($option.Code -eq $DefaultCode) { ' (default)' } else { '' }
+            Write-Host ("{0}. {1}{2}" -f ($i + 1), $option.Label, $suffix)
+        }
+        $choice = Read-Host 'Number'
+        if ([string]::IsNullOrWhiteSpace($choice)) { return $DefaultCode }
+        $number = 0
+        if ([int]::TryParse($choice, [ref]$number) -and $number -ge 1 -and $number -le $script:LanguageOptions.Count) {
+            return $script:LanguageOptions[$number - 1].Code
         }
     }
+}
 
-    ($header -join [Environment]::NewLine)
+function Select-LanguageGui {
+    param([string]$DefaultCode)
+
+    Add-Type -AssemblyName System.Windows.Forms
+    Add-Type -AssemblyName System.Drawing
+
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = 'Language'
+    $form.StartPosition = 'CenterScreen'
+    $form.Size = New-Object System.Drawing.Size(420, 180)
+    $form.FormBorderStyle = 'FixedDialog'
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+
+    $label = New-Object System.Windows.Forms.Label
+    $label.Text = 'Choose your language'
+    $label.Location = New-Object System.Drawing.Point(16, 18)
+    $label.Size = New-Object System.Drawing.Size(360, 20)
+    $form.Controls.Add($label)
+
+    $combo = New-Object System.Windows.Forms.ComboBox
+    $combo.DropDownStyle = 'DropDownList'
+    $combo.Location = New-Object System.Drawing.Point(16, 52)
+    $combo.Size = New-Object System.Drawing.Size(370, 24)
+    foreach ($option in $script:LanguageOptions) { [void]$combo.Items.Add($option.Label) }
+    $defaultIndex = 0
+    for ($i = 0; $i -lt $script:LanguageOptions.Count; $i++) {
+        if ($script:LanguageOptions[$i].Code -eq $DefaultCode) { $defaultIndex = $i; break }
+    }
+    $combo.SelectedIndex = $defaultIndex
+    $form.Controls.Add($combo)
+
+    $ok = New-Object System.Windows.Forms.Button
+    $ok.Text = 'OK'
+    $ok.Location = New-Object System.Drawing.Point(220, 94)
+    $ok.Size = New-Object System.Drawing.Size(75, 28)
+    $ok.Add_Click({
+        $form.Tag = $script:LanguageOptions[$combo.SelectedIndex].Code
+        $form.DialogResult = [System.Windows.Forms.DialogResult]::OK
+        $form.Close()
+    })
+    $form.Controls.Add($ok)
+    $form.AcceptButton = $ok
+
+    $cancel = New-Object System.Windows.Forms.Button
+    $cancel.Text = 'Cancel'
+    $cancel.Location = New-Object System.Drawing.Point(305, 94)
+    $cancel.Size = New-Object System.Drawing.Size(80, 28)
+    $cancel.Add_Click({
+        $form.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+        $form.Close()
+    })
+    $form.Controls.Add($cancel)
+    $form.CancelButton = $cancel
+
+    if ($form.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { return $null }
+    return [string]$form.Tag
+}
+
+function Initialize-Language {
+    if ($Language) { Set-Language $Language; return }
+    $defaultCode = Resolve-DefaultLanguageCode
+    if ($script:IsNoGuiMode) {
+        Set-Language (Select-LanguageConsole -DefaultCode $defaultCode)
+    } else {
+        $selected = Select-LanguageGui -DefaultCode $defaultCode
+        if (-not $selected) { exit 1 }
+        Set-Language $selected
+    }
+}
+
+function Get-ConnectionGuidanceText {
+    param([object[]]$Devices = @())
+
+    $lines = @()
+    $lines += Get-Text 'NeedUsbDebugBody'
+    if ($Devices.Count -gt 0) {
+        $lines += ''
+        $lines += Get-Text 'DetectedState'
+        $lines += ($Devices | ForEach-Object { "$($_.Serial) ($($_.State))" })
+        if ((@($Devices | Where-Object { $_.State -eq 'unauthorized' })).Count -gt 0) {
+            $lines += ''
+            $lines += Get-Text 'Unauthorized1'
+            $lines += Get-Text 'Unauthorized2'
+        }
+    }
+    return ($lines -join [Environment]::NewLine)
 }
 
 function Wait-ForUserToFixConnection {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$GuidanceText
-    )
+    param([string]$GuidanceText)
 
     Write-Log ''
-    foreach ($line in ($GuidanceText -split "`r?`n")) {
-        Write-Log $line
-    }
+    foreach ($line in ($GuidanceText -split "`r?`n")) { Write-Log $line }
     Write-Log ''
 
     if ($script:IsNoGuiMode) {
-        Write-Host ''
-        [void](Read-Host 'Press Enter after you finish the USB debugging steps')
+        [void](Read-Host (Get-Text 'RetryPrompt'))
         return $true
     }
 
     $result = [System.Windows.Forms.MessageBox]::Show(
-        $GuidanceText + [Environment]::NewLine + [Environment]::NewLine + '以鍮꾧? ?앸궗?쇰㈃ ?뺤씤???뚮윭 ?ㅼ떆 ?쒕룄?⑸땲??',
-        'USB ?붾쾭源??ㅼ젙 ?꾩슂',
+        $GuidanceText + [Environment]::NewLine + [Environment]::NewLine + (Get-Text 'RetryDialog'),
+        (Get-Text 'NeedUsbDebugTitle'),
         [System.Windows.Forms.MessageBoxButtons]::OKCancel,
         [System.Windows.Forms.MessageBoxIcon]::Information
     )
-
     return ($result -eq [System.Windows.Forms.DialogResult]::OK)
 }
 
 function Find-AdbPath {
     $command = Get-Command adb -ErrorAction SilentlyContinue
-    if ($command) {
-        return $command.Source
-    }
-
-    $candidates = @('C:\Users\kkyyu\AppData\Local\Android\Sdk\platform-tools\adb.exe')
-
-    if ($env:LOCALAPPDATA) {
-        $candidates += Join-Path $env:LOCALAPPDATA 'Android\Sdk\platform-tools\adb.exe'
-    }
-    if ($env:ANDROID_HOME) {
-        $candidates += Join-Path $env:ANDROID_HOME 'platform-tools\adb.exe'
-    }
-    if ($env:ANDROID_SDK_ROOT) {
-        $candidates += Join-Path $env:ANDROID_SDK_ROOT 'platform-tools\adb.exe'
-    }
-
-    $candidates = @($candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -Unique)
-
-    if ($candidates.Count -gt 0) {
-        return $candidates[0]
-    }
-
-    throw 'adb.exe was not found. Install Android platform-tools or Android Studio first.'
-}
-
-function Get-DeviceEntries {
-    param([string]$AdbPath)
-
-    Invoke-ExternalCommand -FilePath $AdbPath -Arguments @('start-server') -AllowFailure | Out-Null
-    $result = Invoke-ExternalCommand -FilePath $AdbPath -Arguments @('devices', '-l')
-    $lines = $result.StdOut -split "`r?`n" | Where-Object { $_.Trim() }
-    $deviceLines = $lines | Where-Object { $_ -notmatch '^List of devices attached' }
-
-    $devices = @(
-        foreach ($line in $deviceLines) {
-            $parts = $line -split '\s+'
-            if ($parts.Count -ge 2) {
-                [PSCustomObject]@{
-                    Serial = $parts[0]
-                    State = $parts[1]
-                    Raw = $line
-                }
-            }
-        }
-    )
-
-    return $devices
+    if ($command) { return $command.Source }
+    $candidates = @(
+        'C:\Users\kkyyu\AppData\Local\Android\Sdk\platform-tools\adb.exe',
+        (Join-Path $env:LOCALAPPDATA 'Android\Sdk\platform-tools\adb.exe')
+    ) | Where-Object { $_ -and (Test-Path $_) }
+    if ($candidates.Count -gt 0) { return $candidates[0] }
+    throw (Get-Text 'AdbNotFound')
 }
 
 function Invoke-ExternalCommand {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$FilePath,
-        [Parameter(Mandatory = $true)]
-        [string[]]$Arguments,
-        [switch]$AllowFailure
-    )
+    param([string]$FilePath, [string[]]$Arguments, [switch]$AllowFailure)
 
-    $renderedArgs = $Arguments | ForEach-Object {
-        if ($_ -match '\s') { '"' + $_ + '"' } else { $_ }
-    }
-    Write-Log ("Running: {0} {1}" -f $FilePath, ($renderedArgs -join ' '))
+    $shownArgs = $Arguments | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }
+    Write-Log ("Running: {0} {1}" -f $FilePath, ($shownArgs -join ' '))
 
     $quotedArgs = $Arguments | ForEach-Object {
         $value = $_ -replace '"', '\"'
-        if ($value -match '\s') {
-            '"' + $value + '"'
-        } else {
-            $value
-        }
+        if ($value -match '\s') { '"' + $value + '"' } else { $value }
     }
 
     $psi = New-Object System.Diagnostics.ProcessStartInfo
@@ -190,22 +243,30 @@ function Invoke-ExternalCommand {
     $stderr = $process.StandardError.ReadToEnd()
     $process.WaitForExit()
 
-    if ($stdout.Trim()) {
-        Write-Log $stdout.Trim()
-    }
-    if ($stderr.Trim()) {
-        Write-Log $stderr.Trim()
-    }
-
+    if ($stdout.Trim()) { Write-Log $stdout.Trim() }
+    if ($stderr.Trim()) { Write-Log $stderr.Trim() }
     if (-not $AllowFailure -and $process.ExitCode -ne 0) {
         throw ("Command failed with exit code {0}." -f $process.ExitCode)
     }
 
-    [PSCustomObject]@{
-        ExitCode = $process.ExitCode
-        StdOut = $stdout
-        StdErr = $stderr
-    }
+    [PSCustomObject]@{ ExitCode = $process.ExitCode; StdOut = $stdout; StdErr = $stderr }
+}
+
+function Get-DeviceEntries {
+    param([string]$AdbPath)
+
+    Invoke-ExternalCommand -FilePath $AdbPath -Arguments @('start-server') -AllowFailure | Out-Null
+    $result = Invoke-ExternalCommand -FilePath $AdbPath -Arguments @('devices', '-l')
+    $lines = $result.StdOut -split "`r?`n" | Where-Object { $_.Trim() }
+    $deviceLines = $lines | Where-Object { $_ -notmatch '^List of devices attached' }
+    return @(
+        foreach ($line in $deviceLines) {
+            $parts = $line -split '\s+'
+            if ($parts.Count -ge 2) {
+                [PSCustomObject]@{ Serial = $parts[0]; State = $parts[1] }
+            }
+        }
+    )
 }
 
 function Get-ReadyDeviceSerial {
@@ -214,190 +275,132 @@ function Get-ReadyDeviceSerial {
     for ($attempt = 1; $attempt -le 4; $attempt++) {
         $devices = @(Get-DeviceEntries -AdbPath $AdbPath)
         $readyDevices = @($devices | Where-Object { $_.State -eq 'device' })
-
         if ($readyDevices.Count -gt 1) {
             $serials = ($readyDevices | ForEach-Object { $_.Serial }) -join ', '
-            throw ("More than one device is connected: {0}. Leave only one phone connected." -f $serials)
+            throw ((Get-Text 'MoreThanOneDevice') -f $serials)
         }
-
-        if ($readyDevices.Count -eq 1) {
-            return $readyDevices[0].Serial
-        }
-
+        if ($readyDevices.Count -eq 1) { return $readyDevices[0].Serial }
         $guidanceText = Get-ConnectionGuidanceText -Devices $devices
-        $shouldRetry = Wait-ForUserToFixConnection -GuidanceText $guidanceText
-        if (-not $shouldRetry) {
-            throw 'USB ?붾쾭源?以鍮꾧? 痍⑥냼?섏뿀?듬땲??'
+        if (-not (Wait-ForUserToFixConnection -GuidanceText $guidanceText)) {
+            throw (Get-Text 'ConnectionCancelled')
         }
     }
-
-    throw '湲곌린瑜?以鍮꾪뻽吏留?ADB ?곌껐???꾩쭅 ?꾨즺?섏? ?딆븯?듬땲?? USB 耳?대툝, USB ?붾쾭源? RSA ?뱀씤 ?앹뾽???ㅼ떆 ?뺤씤??二쇱꽭??'
+    throw (Get-Text 'ConnectionStillNotReady')
 }
 
 function Invoke-Adb {
-    param(
-        [string]$AdbPath,
-        [string]$Serial,
-        [string[]]$Arguments,
-        [switch]$AllowFailure
-    )
+    param([string]$AdbPath, [string]$Serial, [string[]]$Arguments, [switch]$AllowFailure)
 
     $fullArgs = @()
-    if ($Serial) {
-        $fullArgs += @('-s', $Serial)
-    }
+    if ($Serial) { $fullArgs += @('-s', $Serial) }
     $fullArgs += $Arguments
-
     Invoke-ExternalCommand -FilePath $AdbPath -Arguments $fullArgs -AllowFailure:$AllowFailure
 }
 
 function Install-CamsungApk {
-    param(
-        [string]$AdbPath,
-        [string]$Serial,
-        [string]$ApkPath
-    )
+    param([string]$AdbPath, [string]$Serial, [string]$ApkPath)
 
-    if (-not (Test-Path $ApkPath)) {
-        throw ("APK not found: {0}" -f $ApkPath)
-    }
-
-    $installResult = Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('install', '-r', '--bypass-low-target-sdk-block', $ApkPath) -AllowFailure
-    $combinedOutput = ($installResult.StdOut + "`n" + $installResult.StdErr)
-
-    if ($installResult.ExitCode -eq 0) {
+    if (-not (Test-Path $ApkPath)) { throw ((Get-Text 'ApkNotFound') -f $ApkPath) }
+    $install = Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('install', '-r', '--bypass-low-target-sdk-block', $ApkPath) -AllowFailure
+    $combined = $install.StdOut + "`n" + $install.StdErr
+    if ($install.ExitCode -eq 0) { return }
+    if ($combined -match 'INSTALL_FAILED_UPDATE_INCOMPATIBLE|INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES|INSTALL_FAILED_VERSION_DOWNGRADE') {
+        Write-Log (Get-Text 'ExistingInstallIncompatible')
+        Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('uninstall', $script:PackageName) -AllowFailure | Out-Null
+        Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('install', '-r', '--bypass-low-target-sdk-block', $ApkPath) | Out-Null
         return
     }
-
-    if ($combinedOutput -match 'INSTALL_FAILED_UPDATE_INCOMPATIBLE|INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES|INSTALL_FAILED_VERSION_DOWNGRADE') {
-        Write-Log 'Existing app install is incompatible with this APK. Removing the old app and retrying.'
-        Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('uninstall', $script:PackageName) -AllowFailure
-        Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('install', '-r', '--bypass-low-target-sdk-block', $ApkPath)
-        return
-    }
-
-    throw 'APK installation failed.'
+    throw (Get-Text 'ApkInstallFailed')
 }
 
 function Enable-CamsungWriteSettings {
-    param(
-        [string]$AdbPath,
-        [string]$Serial
-    )
-
-    Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'appops', 'set', $script:PackageName, 'WRITE_SETTINGS', 'allow')
+    param([string]$AdbPath, [string]$Serial)
+    Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'appops', 'set', $script:PackageName, 'WRITE_SETTINGS', 'allow') | Out-Null
 }
 
 function Set-CamsungMuteValue {
-    param(
-        [string]$AdbPath,
-        [string]$Serial,
-        [ValidateSet('0', '1')]
-        [string]$Value
-    )
-
-    Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'settings', 'put', 'system', $script:CameraSettingKey, $Value)
+    param([string]$AdbPath, [string]$Serial, [ValidateSet('0', '1')] [string]$Value)
+    Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'settings', 'put', 'system', $script:CameraSettingKey, $Value) | Out-Null
 }
 
 function Open-CamsungApp {
-    param(
-        [string]$AdbPath,
-        [string]$Serial
-    )
-
-    Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'am', 'start', '-n', $script:MainActivity)
+    param([string]$AdbPath, [string]$Serial)
+    Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'am', 'start', '-n', $script:MainActivity) | Out-Null
 }
 
 function Try-EnableVibrateMode {
-    param(
-        [string]$AdbPath,
-        [string]$Serial
-    )
-
+    param([string]$AdbPath, [string]$Serial)
     $attempts = @(
         @('shell', 'cmd', 'audio', 'set-ringer-mode', 'VIBRATE'),
         @('shell', 'cmd', 'audio', 'set-ringer-mode', 'SILENT')
     )
-
     foreach ($attempt in $attempts) {
         $result = Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments $attempt -AllowFailure
         if ($result.ExitCode -eq 0) {
-            Write-Log 'Best-effort vibrate mode command succeeded.'
+            Write-Log (Get-Text 'VibrateSuccess')
             return
         }
     }
-
-    Write-Log 'Best-effort vibrate mode command was not supported on this device. If shutter sound remains, set the phone to Vibrate or Silent manually.'
+    Write-Log (Get-Text 'VibrateUnsupported')
 }
 
 function Run-InstallMuteWorkflow {
     $adbPath = Find-AdbPath
     $serial = Get-ReadyDeviceSerial -AdbPath $adbPath
-
-    Write-Log ("Using device: {0}" -f $serial)
+    Write-Log ((Get-Text 'UsingDevice') -f $serial)
     Install-CamsungApk -AdbPath $adbPath -Serial $serial -ApkPath $script:DefaultApkPath
     Enable-CamsungWriteSettings -AdbPath $adbPath -Serial $serial
     Set-CamsungMuteValue -AdbPath $adbPath -Serial $serial -Value '0'
-
-    if ($script:TrySetVibrateModeEnabled) {
-        Try-EnableVibrateMode -AdbPath $adbPath -Serial $serial
-    } else {
-        Write-Log 'Phone ringer mode was left unchanged. For some Samsung builds, Vibrate or Silent mode is still required.'
-    }
-
-    Write-Log 'Install + mute workflow completed.'
+    if ($script:TrySetVibrateModeEnabled) { Try-EnableVibrateMode -AdbPath $adbPath -Serial $serial } else { Write-Log (Get-Text 'RingerUnchanged') }
+    Write-Log (Get-Text 'InstallMuteDone')
 }
 
 function Run-UnmuteWorkflow {
     $adbPath = Find-AdbPath
     $serial = Get-ReadyDeviceSerial -AdbPath $adbPath
-
-    Write-Log ("Using device: {0}" -f $serial)
+    Write-Log ((Get-Text 'UsingDevice') -f $serial)
     Set-CamsungMuteValue -AdbPath $adbPath -Serial $serial -Value '1'
-    Write-Log 'Camera shutter sound was set back to normal.'
+    Write-Log (Get-Text 'UnmuteDone')
 }
 
 function Run-OpenAppWorkflow {
     $adbPath = Find-AdbPath
     $serial = Get-ReadyDeviceSerial -AdbPath $adbPath
-
-    Write-Log ("Using device: {0}" -f $serial)
+    Write-Log ((Get-Text 'UsingDevice') -f $serial)
     Open-CamsungApp -AdbPath $adbPath -Serial $serial
-    Write-Log 'camsung app launch command sent.'
-}
-
-function Invoke-Action {
-    param([string]$RequestedAction)
-
-    switch ($RequestedAction) {
-        'InstallMute' { Run-InstallMuteWorkflow }
-        'Unmute' { Run-UnmuteWorkflow }
-        'OpenApp' { Run-OpenAppWorkflow }
-        default { throw ("Unsupported action: {0}" -f $RequestedAction) }
-    }
+    Write-Log (Get-Text 'OpenAppDone')
 }
 
 if ($NoGui) {
+    Initialize-Language
     try {
-        Invoke-Action -RequestedAction $Action
+        switch ($Action) {
+            'InstallMute' { Run-InstallMuteWorkflow }
+            'Unmute' { Run-UnmuteWorkflow }
+            'OpenApp' { Run-OpenAppWorkflow }
+        }
+        Write-Host (Get-Text 'Finished')
+        if ($PauseOnExit) { [void](Read-Host (Get-Text 'ClosePrompt')) }
         exit 0
     } catch {
-        Write-Host ("ERROR: {0}" -f $_.Exception.Message)
+        Write-Host ("{0}: {1}" -f (Get-Text 'Error'), $_.Exception.Message)
+        if ($PauseOnExit) { [void](Read-Host (Get-Text 'ClosePrompt')) }
         exit 1
     }
 }
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Initialize-Language
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'camsung ADB One-Click Tool'
+$form.Text = Get-Text 'Title'
 $form.StartPosition = 'CenterScreen'
 $form.Size = New-Object System.Drawing.Size(760, 520)
 $form.MinimumSize = New-Object System.Drawing.Size(760, 520)
 
 $title = New-Object System.Windows.Forms.Label
-$title.Text = 'Install and control camsung from Windows with one click'
+$title.Text = Get-Text 'Subtitle'
 $title.Location = New-Object System.Drawing.Point(16, 16)
 $title.Size = New-Object System.Drawing.Size(700, 24)
 $title.Font = New-Object System.Drawing.Font('Segoe UI', 12, [System.Drawing.FontStyle]::Bold)
@@ -410,28 +413,28 @@ $subtitle.Size = New-Object System.Drawing.Size(710, 36)
 $form.Controls.Add($subtitle)
 
 $vibrateCheck = New-Object System.Windows.Forms.CheckBox
-$vibrateCheck.Text = 'Try to switch the phone to Vibrate mode too (best effort)'
+$vibrateCheck.Text = Get-Text 'VibrateCheckbox'
 $vibrateCheck.Location = New-Object System.Drawing.Point(16, 86)
-$vibrateCheck.Size = New-Object System.Drawing.Size(420, 24)
+$vibrateCheck.Size = New-Object System.Drawing.Size(520, 24)
 $vibrateCheck.Checked = $true
 $form.Controls.Add($vibrateCheck)
 
 $installMuteButton = New-Object System.Windows.Forms.Button
-$installMuteButton.Text = 'Install + Mute'
+$installMuteButton.Text = Get-Text 'InstallMuteButton'
 $installMuteButton.Location = New-Object System.Drawing.Point(16, 120)
-$installMuteButton.Size = New-Object System.Drawing.Size(150, 36)
+$installMuteButton.Size = New-Object System.Drawing.Size(170, 36)
 $form.Controls.Add($installMuteButton)
 
 $unmuteButton = New-Object System.Windows.Forms.Button
-$unmuteButton.Text = 'Unmute'
-$unmuteButton.Location = New-Object System.Drawing.Point(176, 120)
-$unmuteButton.Size = New-Object System.Drawing.Size(120, 36)
+$unmuteButton.Text = Get-Text 'UnmuteButton'
+$unmuteButton.Location = New-Object System.Drawing.Point(196, 120)
+$unmuteButton.Size = New-Object System.Drawing.Size(130, 36)
 $form.Controls.Add($unmuteButton)
 
 $openAppButton = New-Object System.Windows.Forms.Button
-$openAppButton.Text = 'Open App'
-$openAppButton.Location = New-Object System.Drawing.Point(306, 120)
-$openAppButton.Size = New-Object System.Drawing.Size(120, 36)
+$openAppButton.Text = Get-Text 'OpenAppButton'
+$openAppButton.Location = New-Object System.Drawing.Point(336, 120)
+$openAppButton.Size = New-Object System.Drawing.Size(130, 36)
 $form.Controls.Add($openAppButton)
 
 $logBox = New-Object System.Windows.Forms.TextBox
@@ -454,11 +457,15 @@ function Invoke-UiAction {
     $script:TrySetVibrateModeEnabled = $vibrateCheck.Checked
 
     try {
-        Invoke-Action -RequestedAction $RequestedAction
-        [System.Windows.Forms.MessageBox]::Show('Completed successfully.', 'camsung ADB Tool')
+        switch ($RequestedAction) {
+            'InstallMute' { Run-InstallMuteWorkflow }
+            'Unmute' { Run-UnmuteWorkflow }
+            'OpenApp' { Run-OpenAppWorkflow }
+        }
+        [System.Windows.Forms.MessageBox]::Show((Get-Text 'Completed'), (Get-Text 'Title')) | Out-Null
     } catch {
-        Write-Log ("ERROR: {0}" -f $_.Exception.Message)
-        [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'camsung ADB Tool')
+        Write-Log ("{0}: {1}" -f (Get-Text 'Error'), $_.Exception.Message)
+        [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, (Get-Text 'Title')) | Out-Null
     } finally {
         $form.UseWaitCursor = $false
         $installMuteButton.Enabled = $true
@@ -471,5 +478,5 @@ $installMuteButton.Add_Click({ Invoke-UiAction -RequestedAction 'InstallMute' })
 $unmuteButton.Add_Click({ Invoke-UiAction -RequestedAction 'Unmute' })
 $openAppButton.Add_Click({ Invoke-UiAction -RequestedAction 'OpenApp' })
 
-Write-Log 'Ready. Connect one Android device with USB debugging enabled, then click Install + Mute.'
+Write-Log (Get-Text 'Ready')
 [void]$form.ShowDialog()
