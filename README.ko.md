@@ -2,7 +2,7 @@
 
 삼성 기본 카메라 셔터음을 Windows에서 ADB로 바로 무음 처리하는 원클릭 도구, ShutterMute입니다.
 
-[최신 EXE 다운로드](https://github.com/kkyyuu99/camsung/releases/latest/download/ShutterMute.exe)
+[최신 EXE 다운로드](https://github.com/kkyyuu99/shuttermute/releases/latest/download/ShutterMute.exe)
 
 ## 이 저장소의 현재 기준
 
