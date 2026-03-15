@@ -10,4 +10,11 @@
     <SelfContained>true</SelfContained>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(AdbBundleDir)' != ''">
+    <EmbeddedResource Include="$(AdbBundleDir)\adb.exe" LogicalName="PlatformTools.adb.exe" />
+    <EmbeddedResource Include="$(AdbBundleDir)\AdbWinApi.dll" LogicalName="PlatformTools.AdbWinApi.dll" />
+    <EmbeddedResource Include="$(AdbBundleDir)\AdbWinUsbApi.dll" LogicalName="PlatformTools.AdbWinUsbApi.dll" />
+    <EmbeddedResource Include="$(AdbBundleDir)\libwinpthread-1.dll" LogicalName="PlatformTools.libwinpthread-1.dll" />
+  </ItemGroup>
 </Project>

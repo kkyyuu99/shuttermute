@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 
 Console.InputEncoding = new UTF8Encoding(false);
@@ -191,6 +192,13 @@ internal sealed class CamsungOneClickApp
 
     private async Task<string> FindAdbPathAsync()
     {
+        var bundledAdbPath = TryExtractBundledAdb();
+        if (!string.IsNullOrWhiteSpace(bundledAdbPath))
+        {
+            WriteLog(Format("UsingBundledAdb", bundledAdbPath));
+            return bundledAdbPath;
+        }
+
         var fromPath = await TryRunProcessAsync("where", ["adb"], echoOutput: false);
         if (fromPath.ExitCode == 0)
         {
@@ -200,6 +208,7 @@ internal sealed class CamsungOneClickApp
                 .FirstOrDefault(File.Exists);
             if (!string.IsNullOrWhiteSpace(firstPath))
             {
+                WriteLog(Format("UsingSystemAdb", firstPath));
                 return firstPath;
             }
         }
@@ -214,11 +223,55 @@ internal sealed class CamsungOneClickApp
         {
             if (File.Exists(candidate))
             {
+                WriteLog(Format("UsingSystemAdb", candidate));
                 return candidate;
             }
         }
 
         throw new InvalidOperationException(GetText("AdbNotFound"));
+    }
+
+    private static string? TryExtractBundledAdb()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var bundle = new Dictionary<string, string>
+        {
+            ["adb.exe"] = "PlatformTools.adb.exe",
+            ["AdbWinApi.dll"] = "PlatformTools.AdbWinApi.dll",
+            ["AdbWinUsbApi.dll"] = "PlatformTools.AdbWinUsbApi.dll",
+            ["libwinpthread-1.dll"] = "PlatformTools.libwinpthread-1.dll"
+        };
+
+        if (assembly.GetManifestResourceStream(bundle["adb.exe"]) is null)
+        {
+            return null;
+        }
+
+        var rootPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "CamsungOneClick",
+            "platform-tools");
+        Directory.CreateDirectory(rootPath);
+
+        foreach (var item in bundle)
+        {
+            var destinationPath = Path.Combine(rootPath, item.Key);
+            if (File.Exists(destinationPath))
+            {
+                continue;
+            }
+
+            using var stream = assembly.GetManifestResourceStream(item.Value);
+            if (stream is null)
+            {
+                return null;
+            }
+
+            using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            stream.CopyTo(fileStream);
+        }
+
+        return Path.Combine(rootPath, "adb.exe");
     }
 
     private async Task<DeviceInfo?> WaitForReadyDeviceAsync(string adbPath)
@@ -479,6 +532,8 @@ internal sealed class CamsungOneClickApp
                 ["Unauthorized2"] = "휴대폰 화면에서 USB 디버깅 허용 팝업을 승인하면 계속 진행됩니다.",
                 ["RetryPrompt"] = "준비가 끝났으면 Enter를 눌러 다시 확인합니다. 취소하려면 창을 닫으세요.",
                 ["AdbNotFound"] = "adb.exe를 찾지 못했습니다. Android platform-tools 또는 Android Studio를 먼저 설치해 주세요.",
+                ["UsingBundledAdb"] = "내장된 ADB를 사용합니다: {0}",
+                ["UsingSystemAdb"] = "시스템 ADB를 사용합니다: {0}",
                 ["MoreThanOneDevice"] = "여러 기기가 연결되어 있습니다: {0}. 한 대만 연결해 주세요.",
                 ["ConnectionCancelled"] = "작업을 취소했습니다.",
                 ["ConnectionStillNotReady"] = "ADB 연결이 아직 준비되지 않았습니다.",
@@ -528,6 +583,8 @@ internal sealed class CamsungOneClickApp
                 ["Unauthorized2"] = "端末側で USB デバッグ許可ポップアップを承認すると続行します。",
                 ["RetryPrompt"] = "準備ができたら Enter を押して再確認します。やめる場合はウィンドウを閉じてください。",
                 ["AdbNotFound"] = "adb.exe が見つかりません。Android platform-tools または Android Studio を先にインストールしてください。",
+                ["UsingBundledAdb"] = "内蔵 ADB を使用します: {0}",
+                ["UsingSystemAdb"] = "システム ADB を使用します: {0}",
                 ["MoreThanOneDevice"] = "複数の端末が接続されています: {0}。1 台だけ接続してください。",
                 ["ConnectionCancelled"] = "処理をキャンセルしました。",
                 ["ConnectionStillNotReady"] = "ADB 接続がまだ準備できていません。",

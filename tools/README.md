@@ -14,6 +14,8 @@ Recommended path:
 
 - Use the single-file EXE when you want to move just one file around on Windows.
 - The EXE talks to the phone over ADB directly and does not install the `camsung` APK.
+- The published EXE can bundle `adb.exe` and the required DLLs inside itself, so the target PC does not need a separate ADB install.
+- On first launch, the EXE extracts its bundled ADB files into `%LOCALAPPDATA%\CamsungOneClick\platform-tools`.
 
 Startup language options:
 
