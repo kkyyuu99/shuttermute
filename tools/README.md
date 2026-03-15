@@ -1,4 +1,4 @@
-# Windows one-click helpers
+﻿# Windows one-click helpers
 
 This folder contains a Windows-side ADB helper for `camsung`.
 
@@ -19,6 +19,6 @@ What the install + mute flow does:
 
 Notes:
 
-- The phone still needs USB debugging enabled.
+- If USB debugging is off, the tool now pauses and shows Samsung-specific steps before retrying.
 - The best-effort vibrate step may not work on every device build.
 - If the phone is already connected and authorized, `OneClick-InstallMute.bat` is the fastest path.

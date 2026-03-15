@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [ValidateSet('InstallMute', 'Unmute', 'OpenApp')]
     [string]$Action = 'InstallMute',
@@ -8,6 +8,8 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+[Console]::InputEncoding = New-Object System.Text.UTF8Encoding($false)
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 
 $script:PackageName = 'android.com.ericswpark.camsung'
 $script:MainActivity = 'android.com.ericswpark.camsung/.MainActivity'
@@ -16,6 +18,7 @@ $script:RepoRoot = Split-Path -Path $PSScriptRoot -Parent
 $script:DefaultApkPath = Join-Path $script:RepoRoot 'app\build\outputs\apk\release\app-release.apk'
 $script:LogTextBox = $null
 $script:TrySetVibrateModeEnabled = $TrySetVibrateMode.IsPresent
+$script:IsNoGuiMode = $NoGui.IsPresent
 
 function Write-Log {
     param([string]$Message)
@@ -28,6 +31,75 @@ function Write-Log {
         $script:LogTextBox.AppendText($line + [Environment]::NewLine)
         [System.Windows.Forms.Application]::DoEvents()
     }
+}
+
+function Get-ConnectionGuidanceText {
+    param(
+        [Parameter(Mandatory = $false)]
+        [object[]]$Devices = @()
+    )
+
+    $header = @(
+        'ADB ?곌껐 以鍮꾧? ?꾩슂?⑸땲??',
+        '',
+        '?쇱꽦?곗뿉??USB ?붾쾭源?耳쒕뒗 諛⑸쾿:',
+        '1. ???좉툑???댁젣?⑸땲??',
+        '2. ?ㅼ젙 > ?대??꾪솕 ?뺣낫 > ?뚰봽?몄썾???뺣낫濡??대룞?⑸땲??',
+        '3. "鍮뚮뱶踰덊샇"瑜?7踰??곗냽?쇰줈 ?뚮윭 媛쒕컻???듭뀡???쒖꽦?뷀빀?덈떎.',
+        '4. ?ㅼ젙 硫붿씤?쇰줈 ?뚯븘媛??媛쒕컻???듭뀡 硫붾돱瑜??쎈땲??',
+        '5. "USB ?붾쾭源???耳?땲??',
+        '6. USB 耳?대툝???ㅼ떆 ?곌껐?섍퀬, 媛?ν븯硫?USB ?ъ슜 紐⑤뱶瑜?"?뚯씪 ?꾩넚"?쇰줈 諛붽퓠?덈떎.',
+        '7. ???붾㈃??"USB ?붾쾭源낆쓣 ?덉슜?섏떆寃좎뒿?덇퉴?" ?앹뾽?먯꽌 "??긽 ??而댄벂?곗뿉???덉슜" 泥댄겕 ???덉슜???꾨쫭?덈떎.',
+        '',
+        '?앹뾽?????⑤㈃:',
+        '- 耳?대툝??類먮떎媛 ?ㅼ떆 ?곌껐?⑸땲??',
+        '- 媛쒕컻???듭뀡?먯꽌 USB ?붾쾭源낆쓣 猿먮떎媛 ?ㅼ떆 耳?땲??',
+        '- PC 紐낅졊李쎌뿉??adb kill-server ???ㅼ떆 ?쒕룄?⑸땲??',
+        '- ???붾㈃??爰쇱졇 ?덉? ?딆?吏 ?뺤씤?⑸땲??'
+    )
+
+    if ($Devices.Count -gt 0) {
+        $states = $Devices | ForEach-Object { "$($_.Serial) ($($_.State))" }
+        $header += ''
+        $header += '?꾩옱 媛먯????곹깭:'
+        $header += $states
+
+        if (($Devices | Where-Object { $_.State -eq 'unauthorized' }).Count -gt 0) {
+            $header += ''
+            $header += '吏湲덉? ?곗씠 ?곌껐?섏뿀吏留?RSA ?뱀씤 ???곹깭?낅땲??'
+            $header += '???붾㈃?먯꽌 USB ?붾쾭源??덉슜 ?앹뾽???뱀씤?섎㈃ 諛붾줈 ?ㅼ쓬 ?④퀎濡?吏꾪뻾?⑸땲??'
+        }
+    }
+
+    ($header -join [Environment]::NewLine)
+}
+
+function Wait-ForUserToFixConnection {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$GuidanceText
+    )
+
+    Write-Log ''
+    foreach ($line in ($GuidanceText -split "`r?`n")) {
+        Write-Log $line
+    }
+    Write-Log ''
+
+    if ($script:IsNoGuiMode) {
+        Write-Host ''
+        [void](Read-Host 'Press Enter after you finish the USB debugging steps')
+        return $true
+    }
+
+    $result = [System.Windows.Forms.MessageBox]::Show(
+        $GuidanceText + [Environment]::NewLine + [Environment]::NewLine + '以鍮꾧? ?앸궗?쇰㈃ ?뺤씤???뚮윭 ?ㅼ떆 ?쒕룄?⑸땲??',
+        'USB ?붾쾭源??ㅼ젙 ?꾩슂',
+        [System.Windows.Forms.MessageBoxButtons]::OKCancel,
+        [System.Windows.Forms.MessageBoxIcon]::Information
+    )
+
+    return ($result -eq [System.Windows.Forms.DialogResult]::OK)
 }
 
 function Find-AdbPath {
@@ -55,6 +127,30 @@ function Find-AdbPath {
     }
 
     throw 'adb.exe was not found. Install Android platform-tools or Android Studio first.'
+}
+
+function Get-DeviceEntries {
+    param([string]$AdbPath)
+
+    Invoke-ExternalCommand -FilePath $AdbPath -Arguments @('start-server') -AllowFailure | Out-Null
+    $result = Invoke-ExternalCommand -FilePath $AdbPath -Arguments @('devices', '-l')
+    $lines = $result.StdOut -split "`r?`n" | Where-Object { $_.Trim() }
+    $deviceLines = $lines | Where-Object { $_ -notmatch '^List of devices attached' }
+
+    $devices = @(
+        foreach ($line in $deviceLines) {
+            $parts = $line -split '\s+'
+            if ($parts.Count -ge 2) {
+                [PSCustomObject]@{
+                    Serial = $parts[0]
+                    State = $parts[1]
+                    Raw = $line
+                }
+            }
+        }
+    )
+
+    return $devices
 }
 
 function Invoke-ExternalCommand {
@@ -115,36 +211,27 @@ function Invoke-ExternalCommand {
 function Get-ReadyDeviceSerial {
     param([string]$AdbPath)
 
-    $result = Invoke-ExternalCommand -FilePath $AdbPath -Arguments @('devices')
-    $lines = $result.StdOut -split "`r?`n" | Where-Object { $_.Trim() }
-    $deviceLines = $lines | Where-Object { $_ -notmatch '^List of devices attached' }
+    for ($attempt = 1; $attempt -le 4; $attempt++) {
+        $devices = @(Get-DeviceEntries -AdbPath $AdbPath)
+        $readyDevices = @($devices | Where-Object { $_.State -eq 'device' })
 
-    if (-not $deviceLines) {
-        throw 'No Android device is connected. Connect the phone with USB, enable USB debugging, and accept the RSA prompt.'
-    }
+        if ($readyDevices.Count -gt 1) {
+            $serials = ($readyDevices | ForEach-Object { $_.Serial }) -join ', '
+            throw ("More than one device is connected: {0}. Leave only one phone connected." -f $serials)
+        }
 
-    $devices = foreach ($line in $deviceLines) {
-        $parts = $line -split '\s+'
-        if ($parts.Count -ge 2) {
-            [PSCustomObject]@{
-                Serial = $parts[0]
-                State = $parts[1]
-            }
+        if ($readyDevices.Count -eq 1) {
+            return $readyDevices[0].Serial
+        }
+
+        $guidanceText = Get-ConnectionGuidanceText -Devices $devices
+        $shouldRetry = Wait-ForUserToFixConnection -GuidanceText $guidanceText
+        if (-not $shouldRetry) {
+            throw 'USB ?붾쾭源?以鍮꾧? 痍⑥냼?섏뿀?듬땲??'
         }
     }
 
-    $readyDevices = $devices | Where-Object { $_.State -eq 'device' }
-    if ($readyDevices.Count -eq 0) {
-        $states = ($devices | ForEach-Object { "$($_.Serial) ($($_.State))" }) -join ', '
-        throw ("Connected device is not ready yet: {0}" -f $states)
-    }
-
-    if ($readyDevices.Count -gt 1) {
-        $serials = ($readyDevices | ForEach-Object { $_.Serial }) -join ', '
-        throw ("More than one device is connected: {0}. Leave only one phone connected." -f $serials)
-    }
-
-    return $readyDevices[0].Serial
+    throw '湲곌린瑜?以鍮꾪뻽吏留?ADB ?곌껐???꾩쭅 ?꾨즺?섏? ?딆븯?듬땲?? USB 耳?대툝, USB ?붾쾭源? RSA ?뱀씤 ?앹뾽???ㅼ떆 ?뺤씤??二쇱꽭??'
 }
 
 function Invoke-Adb {
