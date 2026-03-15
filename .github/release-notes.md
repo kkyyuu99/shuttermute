@@ -2,6 +2,13 @@
 
 Primary download: `CamsungOneClick.exe`
 
+한국어 요약:
+
+- Windows에서 삼성 카메라 셔터음을 ADB로 바로 제어하는 원클릭 EXE입니다.
+- APK 설치가 필요 없습니다.
+- 대상 PC에 ADB를 따로 설치할 필요가 없습니다.
+- 시작 시 한국어/일본어를 선택할 수 있습니다.
+
 ## Overview
 
 - Windows one-click tool for Samsung camera shutter sound control
