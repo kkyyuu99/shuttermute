@@ -1,6 +1,6 @@
-package android.com.ericswpark.camsung.faq
+package io.github.kkyyuu.shuttermute.faq
 
-import android.com.ericswpark.camsung.R
+import io.github.kkyyuu.shuttermute.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

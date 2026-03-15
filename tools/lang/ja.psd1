@@ -1,6 +1,6 @@
 ﻿@{
-    Title = 'camsung ADB ワンクリックツール'
-    Subtitle = 'Windows から camsung のインストールと設定をまとめて行います'
+    Title = 'ShutterMute ADB ワンクリックツール'
+    Subtitle = 'Windows から ShutterMute の設定をまとめて行います'
     Ready = '準備完了です。USB デバッグを有効にした Android 端末を 1 台接続してボタンを押してください。'
     InstallMuteButton = 'インストール + 無音'
     UnmuteButton = '無音解除'
@@ -46,6 +46,6 @@
     RingerUnchanged = '着信モードは変更していません。Samsung の一部ビルドではバイブまたはサイレントが必要です。'
     InstallMuteDone = 'インストールと無音化が完了しました。'
     UnmuteDone = 'カメラのシャッター音を元に戻しました。'
-    OpenAppDone = 'camsung アプリ起動コマンドを送信しました。'
+    OpenAppDone = 'ShutterMute アプリ起動コマンドを送信しました。'
     UsingDevice = '使用端末: {0}'
 }

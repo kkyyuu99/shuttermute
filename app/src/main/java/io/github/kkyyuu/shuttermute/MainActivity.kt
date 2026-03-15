@@ -1,6 +1,6 @@
-package android.com.ericswpark.camsung
+package io.github.kkyyuu.shuttermute
 
-import android.com.ericswpark.camsung.faq.FAQActivity
+import io.github.kkyyuu.shuttermute.faq.FAQActivity
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
@@ -21,7 +21,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 
 
 class MainActivity : AppCompatActivity() {
-    private val sharedPrefKey = "android.com.ericswpark.camsung.PREFERENCES"
+    private val sharedPrefKey = "io.github.kkyyuu.shuttermute.PREFERENCES"
 
     private lateinit var switchBtn: SwitchMaterial
     private lateinit var lockBtn: ImageView

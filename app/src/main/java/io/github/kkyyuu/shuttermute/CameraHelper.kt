@@ -1,4 +1,4 @@
-package android.com.ericswpark.camsung
+package io.github.kkyyuu.shuttermute
 
 import android.content.ContentResolver
 import android.provider.Settings

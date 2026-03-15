@@ -8,8 +8,8 @@
         android:shortcutLongLabel="@string/shortcut_camera_mute_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="android.com.ericswpark.camsung"
-            android:targetClass="android.com.ericswpark.camsung.MainActivity"
+            android:targetPackage="io.github.kkyyuu.shuttermute"
+            android:targetClass="io.github.kkyyuu.shuttermute.MainActivity"
             android:data="app://mute" />
     </shortcut>
     <shortcut
@@ -20,8 +20,8 @@
         android:shortcutLongLabel="@string/shortcut_camera_unmute_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="android.com.ericswpark.camsung"
-            android:targetClass="android.com.ericswpark.camsung.MainActivity"
+            android:targetPackage="io.github.kkyyuu.shuttermute"
+            android:targetClass="io.github.kkyyuu.shuttermute.MainActivity"
             android:data="app://unmute" />
     </shortcut>
 </shortcuts>

@@ -14,8 +14,8 @@ $ErrorActionPreference = 'Stop'
 [Console]::InputEncoding = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 
-$script:PackageName = 'android.com.ericswpark.camsung'
-$script:MainActivity = 'android.com.ericswpark.camsung/.MainActivity'
+$script:PackageName = 'io.github.kkyyuu.shuttermute'
+$script:MainActivity = 'io.github.kkyyuu.shuttermute/.MainActivity'
 $script:CameraSettingKey = 'csc_pref_camera_forced_shuttersound_key'
 $script:RepoRoot = Split-Path -Path $PSScriptRoot -Parent
 $script:DefaultApkPath = Join-Path $script:RepoRoot 'app\build\outputs\apk\release\app-release.apk'
@@ -289,7 +289,7 @@ function Invoke-Adb {
     Invoke-ExternalCommand -FilePath $AdbPath -Arguments $fullArgs -AllowFailure:$AllowFailure
 }
 
-function Install-CamsungApk {
+function Install-ShutterMuteApk {
     param([string]$AdbPath, [string]$Serial, [string]$ApkPath)
 
     if (-not (Test-Path $ApkPath)) { throw ((Get-Text 'ApkNotFound') -f $ApkPath) }
@@ -305,17 +305,17 @@ function Install-CamsungApk {
     throw (Get-Text 'ApkInstallFailed')
 }
 
-function Enable-CamsungWriteSettings {
+function Enable-ShutterMuteWriteSettings {
     param([string]$AdbPath, [string]$Serial)
     Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'appops', 'set', $script:PackageName, 'WRITE_SETTINGS', 'allow') | Out-Null
 }
 
-function Set-CamsungMuteValue {
+function Set-ShutterMuteValue {
     param([string]$AdbPath, [string]$Serial, [ValidateSet('0', '1')] [string]$Value)
     Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'settings', 'put', 'system', $script:CameraSettingKey, $Value) | Out-Null
 }
 
-function Open-CamsungApp {
+function Open-ShutterMuteApp {
     param([string]$AdbPath, [string]$Serial)
     Invoke-Adb -AdbPath $AdbPath -Serial $Serial -Arguments @('shell', 'am', 'start', '-n', $script:MainActivity) | Out-Null
 }
@@ -340,9 +340,9 @@ function Run-InstallMuteWorkflow {
     $adbPath = Find-AdbPath
     $serial = Get-ReadyDeviceSerial -AdbPath $adbPath
     Write-Log ((Get-Text 'UsingDevice') -f $serial)
-    Install-CamsungApk -AdbPath $adbPath -Serial $serial -ApkPath $script:DefaultApkPath
-    Enable-CamsungWriteSettings -AdbPath $adbPath -Serial $serial
-    Set-CamsungMuteValue -AdbPath $adbPath -Serial $serial -Value '0'
+        Install-ShutterMuteApk -AdbPath $adbPath -Serial $serial -ApkPath $script:DefaultApkPath
+        Enable-ShutterMuteWriteSettings -AdbPath $adbPath -Serial $serial
+        Set-ShutterMuteValue -AdbPath $adbPath -Serial $serial -Value '0'
     if ($script:TrySetVibrateModeEnabled) { Try-EnableVibrateMode -AdbPath $adbPath -Serial $serial } else { Write-Log (Get-Text 'RingerUnchanged') }
     Write-Log (Get-Text 'InstallMuteDone')
 }
@@ -351,7 +351,7 @@ function Run-UnmuteWorkflow {
     $adbPath = Find-AdbPath
     $serial = Get-ReadyDeviceSerial -AdbPath $adbPath
     Write-Log ((Get-Text 'UsingDevice') -f $serial)
-    Set-CamsungMuteValue -AdbPath $adbPath -Serial $serial -Value '1'
+        Set-ShutterMuteValue -AdbPath $adbPath -Serial $serial -Value '1'
     Write-Log (Get-Text 'UnmuteDone')
 }
 
@@ -359,7 +359,7 @@ function Run-OpenAppWorkflow {
     $adbPath = Find-AdbPath
     $serial = Get-ReadyDeviceSerial -AdbPath $adbPath
     Write-Log ((Get-Text 'UsingDevice') -f $serial)
-    Open-CamsungApp -AdbPath $adbPath -Serial $serial
+        Open-ShutterMuteApp -AdbPath $adbPath -Serial $serial
     Write-Log (Get-Text 'OpenAppDone')
 }
 

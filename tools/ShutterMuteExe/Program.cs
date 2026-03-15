@@ -6,7 +6,7 @@ using System.Text;
 Console.InputEncoding = new UTF8Encoding(false);
 Console.OutputEncoding = new UTF8Encoding(false);
 
-var app = new CamsungOneClickApp(args);
+var app = new ShutterMuteApp(args);
 return await app.RunAsync();
 
 internal enum AppAction
@@ -25,7 +25,7 @@ internal sealed record DeviceInfo(string Serial, string State);
 
 internal sealed record CommandResult(int ExitCode, string Output);
 
-internal sealed class CamsungOneClickApp
+internal sealed class ShutterMuteApp
 {
     private const string CameraSettingKey = "csc_pref_camera_forced_shuttersound_key";
     private readonly string[] args;
@@ -37,7 +37,7 @@ internal sealed class CamsungOneClickApp
     private Dictionary<string, string> text = null!;
     private Dictionary<string, string[]> textLines = null!;
 
-    public CamsungOneClickApp(string[] args)
+    public ShutterMuteApp(string[] args)
     {
         this.args = args;
         interactiveMode = args.Length == 0;
@@ -249,7 +249,7 @@ internal sealed class CamsungOneClickApp
 
         var rootPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "CamsungOneClick",
+            "ShutterMute",
             "platform-tools");
         Directory.CreateDirectory(rootPath);
 

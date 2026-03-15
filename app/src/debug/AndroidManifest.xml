@@ -25,11 +25,11 @@
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.camsung"
+        android:theme="@style/Theme.ShutterMute"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="33">
         <activity
-            android:name="android.com.ericswpark.camsung.MainActivity"
+            android:name="io.github.kkyyuu.shuttermute.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

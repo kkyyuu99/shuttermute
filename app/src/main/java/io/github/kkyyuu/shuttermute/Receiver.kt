@@ -1,4 +1,4 @@
-package android.com.ericswpark.camsung
+package io.github.kkyyuu.shuttermute
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,7 +8,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 
-const val ACTION_SET_CAMERA = "android.com.ericswpark.camsung.ACTION_SET_CAMERA"
+const val ACTION_SET_CAMERA = "io.github.kkyyuu.shuttermute.ACTION_SET_CAMERA"
 
 class Receiver : BroadcastReceiver() {
 
@@ -26,7 +26,7 @@ class Receiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         when (intent!!.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
-                val sharedPref = context.getSharedPreferences("android.com.ericswpark.camsung.PREFERENCES",
+                val sharedPref = context.getSharedPreferences("io.github.kkyyuu.shuttermute.PREFERENCES",
                     Context.MODE_PRIVATE)
                 val startBootEnabled = (sharedPref.getInt("start_at_boot", 0) == 1)
 

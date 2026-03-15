@@ -1,4 +1,4 @@
-package android.com.ericswpark.camsung
+package io.github.kkyyuu.shuttermute
 
 import android.os.Bundle
 import android.view.MenuItem

@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "android.com.ericswpark.camsung"
+        applicationId "io.github.kkyyuu.shuttermute"
         minSdkVersion 22
         // Do NOT change this from 22 - or else you can't write to secure settings
         //noinspection ExpiredTargetSdkVersion
@@ -39,7 +39,7 @@ android {
     kotlin {
         jvmToolchain(21)
     }
-    namespace 'android.com.ericswpark.camsung'
+    namespace 'io.github.kkyyuu.shuttermute'
 
     dependenciesInfo {
         // Disable including dependency metadata when building APKs

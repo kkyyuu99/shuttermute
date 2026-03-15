@@ -1,4 +1,4 @@
-# Contributing to camsung
+# Contributing to ShutterMute
 
 ## Commits
 

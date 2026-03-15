@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">camsung</string>
+    <string name="app_name">ShutterMute</string>
 
     <string name="main_activity_mute_enabled">Camera mute enabled.</string>
     <string name="main_activity_mute_disabled">Camera mute disabled.</string>
@@ -25,10 +25,10 @@
     </string>
 
     <string name="faq_activity_samsung_update_title">
-        Q: I updated my phone and camsung stopped working.
+        Q: I updated my phone and ShutterMute stopped working.
     </string>
     <string name="faq_activity_samsung_update_description">
-        Samsung probably patched out the mechanism that camsung uses to mute the camera.
+        Samsung probably patched out the mechanism that ShutterMute uses to mute the camera.
     </string>
 
     <string name="faq_activity_android_warning_title">

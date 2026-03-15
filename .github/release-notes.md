@@ -1,10 +1,10 @@
-# camsung 원클릭 EXE
+# ShutterMute 원클릭 EXE
 
-기본 다운로드 파일: `CamsungOneClick.exe`
+기본 다운로드 파일: `ShutterMute.exe`
 
 ## 개요
 
-- Windows에서 삼성 카메라 셔터음을 ADB로 바로 제어하는 원클릭 EXE입니다.
+- Windows에서 삼성 카메라 셔터음을 ADB로 바로 무음 처리하는 원클릭 EXE입니다.
 - APK 설치가 필요 없습니다.
 - 대상 PC에 ADB를 따로 설치할 필요가 없습니다.
 - 시작 시 한국어 또는 일본어를 선택할 수 있습니다.
@@ -17,7 +17,7 @@
 
 ## 참고
 
-- 첫 실행 시 EXE 내부의 ADB 파일이 `%LOCALAPPDATA%\CamsungOneClick\platform-tools`로 풀립니다.
+- 첫 실행 시 EXE 내부의 ADB 파일이 `%LOCALAPPDATA%\ShutterMute\platform-tools`로 풀립니다.
 - 일부 삼성 펌웨어에서는 진동 또는 무음 모드가 필요할 수 있습니다.
 - 기존 Android 앱 소스는 저장소에 남아 있지만, 이번 릴리스의 중심은 독립 실행형 Windows EXE입니다.
 

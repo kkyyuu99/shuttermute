@@ -1,4 +1,4 @@
-package android.com.ericswpark.camsung.faq
+package io.github.kkyyuu.shuttermute.faq
 
 import androidx.annotation.StringRes
 

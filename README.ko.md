@@ -1,12 +1,12 @@
-# camsung
+# ShutterMute
 
-삼성 기본 카메라 셔터음을 Windows에서 ADB로 바로 제어하는 원클릭 도구입니다.
+삼성 기본 카메라 셔터음을 Windows에서 ADB로 바로 무음 처리하는 원클릭 도구, ShutterMute입니다.
 
-[최신 EXE 다운로드](https://github.com/kkyyuu99/camsung/releases/latest/download/CamsungOneClick.exe)
+[최신 EXE 다운로드](https://github.com/kkyyuu99/camsung/releases/latest/download/ShutterMute.exe)
 
 ## 이 저장소의 현재 기준
 
-- 기본 배포 파일은 `CamsungOneClick.exe`입니다.
+- 기본 배포 파일은 `ShutterMute.exe`입니다.
 - EXE 안에 필요한 ADB 파일이 함께 들어 있으므로, 대상 Windows PC에 ADB를 따로 설치할 필요가 없습니다.
 - 현재 원클릭 방식은 예전 Android APK를 설치하지 않아도 됩니다.
 - 기존 Android 앱 소스는 레거시 참고용으로 이 저장소에 그대로 유지합니다.
@@ -23,14 +23,14 @@
 
 1. 삼성폰을 USB로 Windows PC에 연결합니다.
 2. 휴대폰에서 개발자 옵션과 USB 디버깅을 켭니다.
-3. `CamsungOneClick.exe`를 실행합니다.
+3. `ShutterMute.exe`를 실행합니다.
 4. 시작 시 언어를 선택합니다. 현재 한국어와 일본어를 지원합니다.
 5. `무음 적용` 또는 `소리 복구`를 선택합니다.
 6. 휴대폰에 RSA 승인 팝업이 뜨면 허용하고 계속 진행합니다.
 
 ## 참고
 
-- 첫 실행 시 EXE 내부의 ADB 파일이 `%LOCALAPPDATA%\CamsungOneClick\platform-tools`로 풀립니다.
+- 첫 실행 시 EXE 내부의 ADB 파일이 `%LOCALAPPDATA%\ShutterMute\platform-tools`로 풀립니다.
 - 일부 삼성 펌웨어에서는 휴대폰이 진동 또는 무음 모드여야 셔터음이 완전히 사라질 수 있습니다.
 - 이 방식은 삼성 전용 설정 동작에 의존하므로, 향후 One UI 또는 Android 업데이트에서 막힐 수 있습니다.
 - 용도는 반드시 타인에게 피해를 주지 않는 합법적이고 신중한 사용에 한정해 주세요.
@@ -45,9 +45,9 @@
 
 ## 주요 소스 위치
 
-- [tools/CamsungOneClickExe/Program.cs](tools/CamsungOneClickExe/Program.cs): 단일 EXE 소스
-- [tools/publish-oneclick-exe.ps1](tools/publish-oneclick-exe.ps1): EXE 빌드 스크립트
-- [tools/CamsungAdbTool.ps1](tools/CamsungAdbTool.ps1): 이전 PowerShell 기반 도구
+- [tools/ShutterMuteExe/Program.cs](tools/ShutterMuteExe/Program.cs): 단일 EXE 소스
+- [tools/publish-shuttermute-exe.ps1](tools/publish-shuttermute-exe.ps1): EXE 빌드 스크립트
+- [tools/ShutterMuteAdbTool.ps1](tools/ShutterMuteAdbTool.ps1): 이전 PowerShell 기반 도구
 
 ## 레거시 앱 경로
 

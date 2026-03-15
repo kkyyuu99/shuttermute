@@ -8,8 +8,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Path $PSScriptRoot -Parent
-$projectPath = Join-Path $PSScriptRoot 'CamsungOneClickExe\CamsungOneClickExe.csproj'
-$outputPath = Join-Path $repoRoot 'build\oneclick-exe'
+$projectPath = Join-Path $PSScriptRoot 'ShutterMuteExe\ShutterMuteExe.csproj'
+$outputPath = Join-Path $repoRoot 'build\shuttermute-exe'
 
 function Resolve-AdbBundleDir {
     $command = Get-Command adb -ErrorAction SilentlyContinue

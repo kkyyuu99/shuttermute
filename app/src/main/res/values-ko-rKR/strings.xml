@@ -1,59 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">캠성</string>
+    <string name="app_name">셔터무음</string>
 
-    <string name="main_activity_mute_enabled">카메라 무음 활성화됨.</string>
-    <string name="main_activity_mute_disabled">카메라 무음 비활성화됨.</string>
-    <string name="main_activity_boot_enabled">재부팅 시, 카메라 무음이 지속됩니다.</string>
-    <string name="main_activity_boot_disabled">재부팅 시, 카메라 무음이 지속되지 않습니다.</string>
+    <string name="main_activity_mute_enabled">카메라 무음이 적용되었습니다.</string>
+    <string name="main_activity_mute_disabled">카메라 무음이 해제되었습니다.</string>
+    <string name="main_activity_boot_enabled">재부팅 후에도 카메라 무음이 유지됩니다.</string>
+    <string name="main_activity_boot_disabled">재부팅 후에는 카메라 무음이 유지되지 않습니다.</string>
 
-    <string name="error_no_permissions">권한 오류 - 카메라 무음 설정 변경에 실패했습니다.</string>
+    <string name="error_no_permissions">권한 오류로 카메라 무음 설정을 바꾸지 못했습니다.</string>
 
-    <string name="main_activity_write_settings_permission_title">권한 없음</string>
+    <string name="main_activity_write_settings_permission_title">권한이 필요합니다</string>
     <string name="main_activity_write_settings_permission_message">
-        이 어플이 정상적으로 작동하기 위해선 시스템 설정 변경 권한이 부여되어야 합니다. 설정으로
-        이동하시겠습니까?
+        이 앱이 동작하려면 시스템 설정 수정 권한이 필요합니다. 지금 설정 화면으로 이동할까요?
     </string>
 
     <string name="main_activity_action_faq">FAQ</string>
 
     <string name="faq_activity_phone_mute_title">
-        Q: 스위치가 켜져 있는데 왜 아직도 카메라 셔터음이 발생하나요?
+        Q: 무음이 켜져 있는데도 셔터음이 계속 납니다.
     </string>
     <string name="faq_activity_phone_mute_description">
-        휴대폰의 밸소리 볼륨이 켜져 있어서 그렇습니다. 진동이나 무음으로 변경하세요.
+        휴대폰 소리 모드가 아직 일반일 수 있습니다. 진동 또는 무음으로 바꿔 보세요.
     </string>
 
     <string name="faq_activity_samsung_update_title">
-        Q: 휴대폰을 업데이트했는데 캠성이 작동하질 않습니다.
+        Q: 휴대폰을 업데이트한 뒤 ShutterMute가 작동하지 않습니다.
     </string>
     <string name="faq_activity_samsung_update_description">
-        삼성이 아마도 캠성이 사용하는 방법을 패치한 것 같습니다.
+        삼성이 ShutterMute가 사용하던 동작 방식을 막았을 가능성이 있습니다.
     </string>
 
     <string name="faq_activity_android_warning_title">
-        Q: 안드로이드 시스템에서 어플이 정상적으로 동작하지 않을 수 있다고 경고합니다. 왜죠?
+        Q: Android가 오래된 앱이라고 경고합니다.
     </string>
     <string name="faq_activity_android_warning_description">
-        안드로이드는 보호된 시스템 설정의 변경을 SDK 22 이하를 타겟하는 어플에게만 허용합니다. 하지만, SDK
-        버전을 22로 설정하게 된다면 안드로이드는 사용자에게 어플에 호환성 문제가 있을 수 있음을 경고합니다.
-        이것은 원래 정상적인 작동으로, 경고를 무시하셔도 됩니다.
+        Android에서는 SDK 22 이하를 대상으로 하는 앱만 시스템 설정 테이블에 쓸 수 있습니다.
+        이 앱은 그 제한 때문에 낮은 target SDK를 유지하며, 그 결과 호환성 경고가 표시될 수 있습니다.
+        이 경고는 예상된 동작입니다.
     </string>
 
     <string name="shortcut_camera_mute_short">카메라 무음</string>
-    <string name="shortcut_camera_mute_long">카메라 무음을 활성화합니다</string>
-    <string name="shortcut_camera_unmute_short">카메라 무음 해제</string>
-    <string name="shortcut_camera_unmute_long">카메라 무음을 비활성화합니다</string>
+    <string name="shortcut_camera_mute_long">카메라 무음을 적용합니다</string>
+    <string name="shortcut_camera_unmute_short">카메라 소리 복구</string>
+    <string name="shortcut_camera_unmute_long">카메라 무음을 해제합니다</string>
 
     <string name="settings_activity_title">설정</string>
 
     <string name="settings_camera_header">카메라</string>
 
-    <string name="settings_activity_camera_auto_launch_title">자동으로 카메라 실행</string>
-    <string name="settings_activity_camera_auto_launch_description">무음 설정이 변경된 직후 바로 카메라를 실행합니다</string>
+    <string name="settings_activity_camera_auto_launch_title">카메라 자동 실행</string>
+    <string name="settings_activity_camera_auto_launch_description">무음 상태를 바꾼 직후 카메라를 자동으로 엽니다</string>
 
-    <string name="auto_launching_camera">카메라 자동 실행 중&#8230;</string>
-    <string name="auto_launch_camera_failed_no_camera">설치된 카메라 어플이 없어 자동 실행이 불가능합니다.</string>
-
-
+    <string name="auto_launching_camera">카메라를 실행하는 중…</string>
+    <string name="auto_launch_camera_failed_no_camera">카메라 앱을 찾지 못해 자동 실행할 수 없습니다.</string>
 </resources>

@@ -4,8 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>CamsungOneClick</AssemblyName>
-    <RootNamespace>CamsungOneClick</RootNamespace>
+    <AssemblyName>ShutterMute</AssemblyName>
+    <RootNamespace>ShutterMute</RootNamespace>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
