@@ -7,6 +7,13 @@ Files:
 - `CamsungAdbTool.ps1`: PowerShell backend with GUI and headless modes
 - `..\OneClick-InstallMute.bat`: double-click to install the APK and set camera mute
 - `..\OneClick-Unmute.bat`: double-click to restore shutter sound
+- `CamsungOneClickExe\`: source for the single-file Windows EXE
+- `publish-oneclick-exe.ps1`: builds a standalone Windows EXE into `build/oneclick-exe`
+
+Recommended path:
+
+- Use the single-file EXE when you want to move just one file around on Windows.
+- The EXE talks to the phone over ADB directly and does not install the `camsung` APK.
 
 Startup language options:
 
@@ -14,6 +21,13 @@ Startup language options:
 - Japanese
 
 The language list is intentionally limited to markets that are commonly treated as shutter-sound-enforced for Samsung phones: Korea and Japan.
+
+What the single-file EXE does:
+
+1. Finds `adb.exe`
+2. Confirms exactly one Android device is connected and authorized
+3. Writes `csc_pref_camera_forced_shuttersound_key=0` or `1` through ADB shell
+4. Tries to switch the phone to Vibrate mode as a best effort when applying mute
 
 What the install + mute flow does:
 
