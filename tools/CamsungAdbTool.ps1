@@ -5,7 +5,7 @@ param(
     [switch]$NoGui,
     [switch]$TrySetVibrateMode,
     [switch]$PauseOnExit,
-    [ValidateSet('ko', 'en', 'ja', 'zh-Hans', 'es', 'fr')]
+    [ValidateSet('ko', 'ja')]
     [string]$Language
 )
 
@@ -22,16 +22,12 @@ $script:DefaultApkPath = Join-Path $script:RepoRoot 'app\build\outputs\apk\relea
 $script:IsNoGuiMode = $NoGui.IsPresent
 $script:TrySetVibrateModeEnabled = $TrySetVibrateMode.IsPresent
 $script:LogTextBox = $null
-$script:CurrentLanguage = 'en'
+$script:CurrentLanguage = 'ko'
 $script:LanguageOptions = @(
-    [PSCustomObject]@{ Code = 'ko'; Label = 'Korean' }
-    [PSCustomObject]@{ Code = 'en'; Label = 'English' }
-    [PSCustomObject]@{ Code = 'ja'; Label = 'Japanese' }
-    [PSCustomObject]@{ Code = 'zh-Hans'; Label = 'Chinese (Simplified)' }
-    [PSCustomObject]@{ Code = 'es'; Label = 'Spanish' }
-    [PSCustomObject]@{ Code = 'fr'; Label = 'French' }
+    [PSCustomObject]@{ Code = 'ko'; Label = '한국어 (Korean)' }
+    [PSCustomObject]@{ Code = 'ja'; Label = '日本語 (Japanese)' }
 )
-$script:FallbackStrings = Import-PowerShellDataFile (Join-Path $PSScriptRoot 'lang\en.psd1')
+$script:FallbackStrings = Import-PowerShellDataFile (Join-Path $PSScriptRoot 'lang\ko.psd1')
 $script:Strings = $script:FallbackStrings
 
 function Get-Text {
@@ -68,12 +64,8 @@ function Write-Log {
 function Resolve-DefaultLanguageCode {
     $name = [System.Globalization.CultureInfo]::CurrentUICulture.Name
     switch -Regex ($name) {
-        '^ko' { return 'ko' }
         '^ja' { return 'ja' }
-        '^zh' { return 'zh-Hans' }
-        '^es' { return 'es' }
-        '^fr' { return 'fr' }
-        default { return 'en' }
+        default { return 'ko' }
     }
 }
 

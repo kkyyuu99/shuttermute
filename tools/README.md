@@ -11,11 +11,9 @@ Files:
 Startup language options:
 
 - Korean
-- English
 - Japanese
-- Simplified Chinese
-- Spanish
-- French
+
+The language list is intentionally limited to markets that are commonly treated as shutter-sound-enforced for Samsung phones: Korea and Japan.
 
 What the install + mute flow does:
 
