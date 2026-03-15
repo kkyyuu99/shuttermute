@@ -1,71 +1,60 @@
 # camsung
 
-[![IzzyOnDroid](https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/android.com.ericswpark.camsung)](https://apt.izzysoft.de/fdroid/index/apk/android.com.ericswpark.camsung)
+Windows one-click tool for controlling the Samsung camera shutter sound over ADB.
 
 <div align="center">
 
-[한국어][korean-translation]
+[Korean Guide](README.ko.md)
 
 </div>
 
-Silence camera on Samsung phones
+[Download latest EXE](https://github.com/kkyyuu99/camsung/releases/latest/download/CamsungOneClick.exe)
 
-[Download latest APK][release-latest-apk]
+## What This Repo Ships Now
 
-[korean-translation]: README.ko.md
-[release-latest-apk]: https://github.com/ericswpark/camsung/releases/latest/download/app-release.apk
+- `CamsungOneClick.exe` is the primary release artifact.
+- The EXE includes the ADB files it needs, so the target Windows PC does not need a separate ADB install.
+- You do not need to install the old Android APK to use the current one-click workflow.
+- The original Android app source is still kept in this repository for reference and legacy use.
 
-## Screenshots
+## Requirements
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="Main window" width="300">
+- Windows PC
+- Samsung USB driver installed
+- USB cable
+- USB debugging enabled on the phone
+- Approval of the RSA prompt on the phone
 
-## Installation
+## How To Use
 
-If your phone is running Android 13 or below, just sideload the APK.
+1. Connect the Samsung phone to the Windows PC with USB.
+2. Enable Developer options and USB debugging on the phone.
+3. Run `CamsungOneClick.exe`.
+4. Choose a language: Korean or Japanese.
+5. Choose `Mute` to silence the shutter or `Unmute` to restore it.
+6. If the phone shows an RSA authorization prompt, approve it and continue.
 
-If your phone is running Android 14 or above, you need to install the app via ADB as Google blocks installing apps that target SDK 22 and below. Enable Developer Mode and USB Debugging, then run:
+## Notes
 
-```
-adb install --bypass-low-target-sdk-block app-release.apk
-```
+- On first launch, the EXE extracts its bundled ADB files into `%LOCALAPPDATA%\CamsungOneClick\platform-tools`.
+- Some Samsung builds may still require the phone to be in Vibrate or Silent mode.
+- This workflow relies on Samsung-specific settings behavior and may stop working on future One UI or Android updates.
+- This tool is intended only for considerate, lawful use.
 
-Make sure to replace `app-release.apk` if you've renamed the file.
+## Disclaimer
 
-## Usage
+- Use this tool only where you are legally allowed to control the camera shutter sound.
+- You are responsible for complying with local laws, regulations, venue rules, and device policies.
+- This repository is provided as-is without warranty.
+- Samsung or Android updates may break this method at any time.
+- The authors and maintainers are not responsible for misuse, device issues, data loss, or any consequences caused by using this tool.
 
-Install, open, and click on the switch to enable the mute function. Click on the lock icon to enable on boot.
+## Source Layout
 
-Note that your phone needs to be on vibrate or mute for the camera shutter to be muted!
+- [tools/CamsungOneClickExe/Program.cs](tools/CamsungOneClickExe/Program.cs): single-file EXE source
+- [tools/publish-oneclick-exe.ps1](tools/publish-oneclick-exe.ps1): publish script
+- [tools/CamsungAdbTool.ps1](tools/CamsungAdbTool.ps1): legacy PowerShell helper
 
-### Automate
+## Legacy App Path
 
-You can automate muting and unmuting the camera with either Galaxy Routines or Tasker.
-
-I recommend using Tasker if possible, as Galaxy Routines will go through app shortcuts, which requires you to open the main activity and will induce a brief flash while the automation runs.
-
-See the [tasker](./tasker/) subfolder. You can import the XML files by long-pressing the "Tasks" tab in Tasker.
-
-## Uninstall
-
-Turn off the switch, then uninstall. If you uninstalled before turning off the switch, re-install
-the app, toggle the switch at least once until it is in the off position (so if it shows as off,
-then turn on and then turn off. If it shows as on, just turn it off), then uninstall.
-
-If you still get unexpected behavior after following the removal steps, try the following command on your computer while your phone is connected via USB and in ADB developer mode:
-
-```
-adb shell settings delete system csc_pref_camera_forced_shuttersound_key
-```
-
-This deletes the prop set by camsung.
-
-## Warning
-
-Please do not use this app for malicious purposes. It's only made for situations where you don't
-want to disturb other people (such as in restaurants or in a library).
-
-This app directly modifies system settings. While it should be relatively safe things can still go
-wrong. I am not responsible for any problems that may arise from using this app.
-
-This app only works with recent Android versions paired with One UI releases. Future software
-updates may block the mechanism that this app uses.
+The old APK-based Android app flow is still in the repository under `app/`, but it is no longer the primary download for this fork.

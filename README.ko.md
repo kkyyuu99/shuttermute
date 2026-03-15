@@ -1,64 +1,54 @@
-# 캠성
+# camsung
 
-[![IzzyOnDroid](https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/android.com.ericswpark.camsung)](https://apt.izzysoft.de/fdroid/index/apk/android.com.ericswpark.camsung)
+삼성 기본 카메라 셔터음을 Windows에서 ADB로 바로 제어하는 원클릭 도구입니다.
 
-삼성 폰에서 카메라 무음 설정
+[최신 EXE 다운로드](https://github.com/kkyyuu99/camsung/releases/latest/download/CamsungOneClick.exe)
 
-[최신 빌드 다운로드][release-latest-apk]
+## 이 저장소의 현재 기준
 
-[release-latest-apk]: https://github.com/ericswpark/camsung/releases/latest/download/app-release.apk
+- 기본 배포 파일은 `CamsungOneClick.exe`입니다.
+- EXE 안에 필요한 ADB 파일이 함께 들어 있으므로, 대상 Windows PC에 ADB를 따로 설치할 필요가 없습니다.
+- 현재 원클릭 방식은 예전 Android APK를 설치하지 않아도 됩니다.
+- 기존 Android 앱 소스는 레거시 참고용으로 이 저장소에 그대로 유지합니다.
 
-## 스샷
+## 준비물
 
-<img src="fastlane/metadata/android/ko-KR/images/phoneScreenshots/1.png" alt="메인 윈도우" width="300">
+- Windows PC
+- 삼성 USB 드라이버
+- USB 케이블
+- 휴대폰의 USB 디버깅 활성화
+- 휴대폰 RSA 허용 팝업 승인
 
-## 설치
+## 사용 방법
 
-만약 폰의 안드로이드 버전이 13 이하라면 APK를 그대로 설치하실 수 있습니다.
+1. 삼성폰을 USB로 Windows PC에 연결합니다.
+2. 휴대폰에서 개발자 옵션과 USB 디버깅을 켭니다.
+3. `CamsungOneClick.exe`를 실행합니다.
+4. 시작 시 언어를 선택합니다. 현재 한국어와 일본어를 지원합니다.
+5. `무음 적용` 또는 `소리 복구`를 선택합니다.
+6. 휴대폰에 RSA 승인 팝업이 뜨면 허용하고 계속 진행합니다.
 
-만약 폰의 안드로이드 버전이 14 이상이면 구글이 SDK 버전 22를 타겟팅하는 어플의 설치를 막기 때문에 ADB를 통하여 어플을 설치해야 됩니다. 개발자 모드를 활성화한 후 USB 디버깅을 켠 다음, 다음을 실행하세요:
+## 참고
 
-```
-adb install --bypass-low-target-sdk-block app-release.apk
-```
+- 첫 실행 시 EXE 내부의 ADB 파일이 `%LOCALAPPDATA%\CamsungOneClick\platform-tools`로 풀립니다.
+- 일부 삼성 펌웨어에서는 휴대폰이 진동 또는 무음 모드여야 셔터음이 완전히 사라질 수 있습니다.
+- 이 방식은 삼성 전용 설정 동작에 의존하므로, 향후 One UI 또는 Android 업데이트에서 막힐 수 있습니다.
+- 용도는 반드시 타인에게 피해를 주지 않는 합법적이고 신중한 사용에 한정해 주세요.
 
-만약 파일 이름을 변경하셨다면 `app-release.apk`를 바꿔주세요.
+## 면책 및 주의사항
 
-더 자세한 설치 방법은 [나무위키에도 등재되어 있습니다](https://namu.wiki/w/%EC%BA%A0%EC%84%B1?from=camsung#s-4)!
+- 카메라 셔터음 제어가 허용되는 범위에서만 사용해 주세요.
+- 현지 법률, 규정, 장소 정책, 기기 정책 준수 책임은 사용자에게 있습니다.
+- 이 저장소와 도구는 어떠한 보증 없이 있는 그대로 제공됩니다.
+- 삼성 또는 Android 업데이트로 이 방식이 언제든 막힐 수 있습니다.
+- 오용, 기기 문제, 데이터 손실, 기타 사용 결과에 대해서 작성자와 유지보수자는 책임지지 않습니다.
 
-## 사용법
+## 주요 소스 위치
 
-설치 후 실행한 다음, 스위치를 눌러 무음을 활성화합니다. 잠금 아이콘을 누르면 부팅시 매번 적용합니다.
+- [tools/CamsungOneClickExe/Program.cs](tools/CamsungOneClickExe/Program.cs): 단일 EXE 소스
+- [tools/publish-oneclick-exe.ps1](tools/publish-oneclick-exe.ps1): EXE 빌드 스크립트
+- [tools/CamsungAdbTool.ps1](tools/CamsungAdbTool.ps1): 이전 PowerShell 기반 도구
 
-카메라 무음이 활성화되려면 시스템 소리 모드가 진동이나 무음으로 설정되어 있어야 됩니다!
+## 레거시 앱 경로
 
-### 자동화
-
-카메라 무음 활성화/비활성화를 갤럭시 루틴이나 Tasker로 자동화할 수 있습니다.
-
-가능하면 Tasker를 사용하는 것을 추천합니다. 갤럭시 루틴은 앱 바로가기를 사용하여 자동화를 구현하는데, 메인 창을 여는 것을 원칙으로 하기 때문에 루틴이 실행될 때 메인 창이 잠시 반짝이는 문제가 있습니다.
-
-[tasker](./tasker/) 서브폴더를 확인하시기 바랍니다. Tasker 내부에서 "Tasks" 탭을 길게 누르셔서 XML 파일들을 불러오기하실 수 있습니다.
-
-## 제거
-
-스위치를 끄고 설치 삭제하시면 됩니다. 만약 스위치를 끄기 전에 삭제하셨다면, 어플을 다시 설치한 후, 스위치를 몇번 토글하여 끔 상태로
-만든 후 (예를 들어, 만약 스위치가 꺼져있다면 킨 다음 다시 끄고, 켜져있다면 그냥 끄시면 됩니다), 어플 설치를 삭제하시면 됩니다.
-
-만약 제거 방법들을 모두 시도했는데도 예상치 않게 작동한다면, 컴퓨터에 휴대폰을 USB로 연결하고, ADB 개발자 모드를 활성화한 후 다음 명령을 실행하세요:
-
-```
-adb shell settings delete system csc_pref_camera_forced_shuttersound_key
-```
-
-이 명령은 캠성이 사용하는 설정값을 삭제합니다.
-
-## 경고
-
-악의적인 용도로의 사용을 자제해주세요. 이 어플은 조용히 해야 하는 상황(예를 들어 음식점이나 도서관)에서
-남을 방해하지 않고 카메라를 사용할 수 있도록 제작되었습니다.
-
-이 어플은 시스템 설정을 직접 변경합니다. 비교적 안전하게 만들어졌지만 아직도 버그나 오류가 있을 수 있으니 사용할 때 조심하세요. 이
-어플을 사용하면서 발생하는 문제에 대해 책임을 지지 않습니다.
-
-이 어플은 최근에 출시된 안드로이드 버전과 One UI 릴리스에서 작동합니다. 추후 소프트웨어 업데이트로 음소거 기능이 막힐 수 있습니다.
+기존 APK 기반 Android 앱 흐름은 `app/` 아래에 남아 있지만, 이 포크에서는 더 이상 기본 배포 수단이 아닙니다.
