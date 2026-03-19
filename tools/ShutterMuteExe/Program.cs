@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 
@@ -12,7 +13,9 @@ return await app.RunAsync();
 internal enum AppAction
 {
     Mute,
-    Unmute
+    Unmute,
+    SetEditSetup,
+    SetEditOpen
 }
 
 internal enum LanguageCode
@@ -25,15 +28,23 @@ internal sealed record DeviceInfo(string Serial, string State);
 
 internal sealed record CommandResult(int ExitCode, string Output);
 
-internal sealed class ShutterMuteApp
+internal sealed partial class ShutterMuteApp
 {
     private const string CameraSettingKey = "csc_pref_camera_forced_shuttersound_key";
+    private const string SetEditPackageName = "io.github.muntashirakon.setedit";
+    private const string SetEditDefaultFileName = "SetEdit-v3.0-rc01.apk";
+    private const string SetEditDefaultDownloadUrl =
+        "https://github.com/MuntashirAkon/SetEdit/releases/download/v3.0-rc01/SetEdit-v3.0-rc01.apk";
     private readonly string[] args;
     private readonly bool interactiveMode;
     private readonly bool trySetVibrateMode;
     private readonly bool pauseOnExit;
+    private bool openSetEditAfterSetup;
+    private bool showHelp;
     private AppAction? action;
     private LanguageCode language;
+    private string? setEditApkPath;
+    private string setEditDownloadUrl = SetEditDefaultDownloadUrl;
     private Dictionary<string, string> text = null!;
     private Dictionary<string, string[]> textLines = null!;
 
@@ -43,6 +54,7 @@ internal sealed class ShutterMuteApp
         interactiveMode = args.Length == 0;
         trySetVibrateMode = !args.Contains("--skip-vibrate", StringComparer.OrdinalIgnoreCase);
         pauseOnExit = interactiveMode && !args.Contains("--no-pause", StringComparer.OrdinalIgnoreCase);
+        openSetEditAfterSetup = !args.Contains("--no-open-setedit", StringComparer.OrdinalIgnoreCase);
         language = ResolveDefaultLanguage();
         ParseArguments();
         ApplyLanguage(language);
@@ -52,6 +64,12 @@ internal sealed class ShutterMuteApp
     {
         try
         {
+            if (showHelp)
+            {
+                PrintHelp();
+                return 0;
+            }
+
             if (!TryResolveLanguageFromPrompt())
             {
                 return 1;
@@ -79,6 +97,12 @@ internal sealed class ShutterMuteApp
                     break;
                 case AppAction.Unmute:
                     await UnmuteAsync(adbPath, device.Serial);
+                    break;
+                case AppAction.SetEditSetup:
+                    await SetupSetEditAsync(adbPath, device.Serial);
+                    break;
+                case AppAction.SetEditOpen:
+                    await OpenSetEditAsync(adbPath, device.Serial);
                     break;
                 default:
                     throw new InvalidOperationException("Action was not resolved.");
@@ -108,6 +132,13 @@ internal sealed class ShutterMuteApp
         for (var i = 0; i < args.Length; i++)
         {
             var current = args[i];
+            if (current.Equals("--help", StringComparison.OrdinalIgnoreCase) ||
+                current.Equals("-h", StringComparison.OrdinalIgnoreCase))
+            {
+                showHelp = true;
+                continue;
+            }
+
             if (current.Equals("--language", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
             {
                 language = ParseLanguage(args[++i]);
@@ -129,14 +160,39 @@ internal sealed class ShutterMuteApp
             if (current.StartsWith("--action=", StringComparison.OrdinalIgnoreCase))
             {
                 action = ParseAction(current.Split('=', 2)[1]);
+                continue;
+            }
+
+            if (current.Equals("--setedit-apk", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
+            {
+                setEditApkPath = args[++i];
+                continue;
+            }
+
+            if (current.StartsWith("--setedit-apk=", StringComparison.OrdinalIgnoreCase))
+            {
+                setEditApkPath = current.Split('=', 2)[1];
+                continue;
+            }
+
+            if (current.Equals("--setedit-url", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
+            {
+                setEditDownloadUrl = args[++i];
+                continue;
+            }
+
+            if (current.StartsWith("--setedit-url=", StringComparison.OrdinalIgnoreCase))
+            {
+                setEditDownloadUrl = current.Split('=', 2)[1];
             }
         }
     }
 
     private bool TryResolveLanguageFromPrompt()
     {
-        if (args.Any(arg => arg.StartsWith("--language", StringComparison.OrdinalIgnoreCase)))
+        if (args.Any(arg => arg.StartsWith("--language", StringComparison.OrdinalIgnoreCase)) || !interactiveMode)
         {
+            ApplyLanguage(language);
             return true;
         }
 
@@ -175,6 +231,8 @@ internal sealed class ShutterMuteApp
         Console.WriteLine(GetText("ChooseAction"));
         Console.WriteLine($"1. {GetText("MuteAction")}");
         Console.WriteLine($"2. {GetText("UnmuteAction")}");
+        Console.WriteLine($"3. {GetText("SetEditSetupAction")}");
+        Console.WriteLine($"4. {GetText("SetEditOpenAction")}");
         Console.WriteLine($"0. {GetText("ExitAction")}");
         Console.Write($"{GetText("ActionPrompt")}: ");
 
@@ -183,6 +241,8 @@ internal sealed class ShutterMuteApp
         {
             "1" => AppAction.Mute,
             "2" => AppAction.Unmute,
+            "3" => AppAction.SetEditSetup,
+            "4" => AppAction.SetEditOpen,
             "0" => null,
             _ => AppAction.Mute
         };
@@ -510,7 +570,12 @@ internal sealed class ShutterMuteApp
         {
             "mute" => AppAction.Mute,
             "unmute" => AppAction.Unmute,
-            _ => throw new InvalidOperationException("Supported actions: mute, unmute")
+            "setedit" => AppAction.SetEditSetup,
+            "setedit-setup" => AppAction.SetEditSetup,
+            "setup-setedit" => AppAction.SetEditSetup,
+            "setedit-open" => AppAction.SetEditOpen,
+            "open-setedit" => AppAction.SetEditOpen,
+            _ => throw new InvalidOperationException("Supported actions: mute, unmute, setedit-setup, setedit-open")
         };
     }
 
@@ -524,6 +589,8 @@ internal sealed class ShutterMuteApp
                 ["ChooseAction"] = "실행할 작업을 선택하세요",
                 ["MuteAction"] = "카메라 무음 적용",
                 ["UnmuteAction"] = "카메라 소리 복구",
+                ["SetEditSetupAction"] = "SetEdit 설치와 권한 부여",
+                ["SetEditOpenAction"] = "SetEdit 열기",
                 ["ExitAction"] = "종료",
                 ["ActionPrompt"] = "번호",
                 ["ClosePrompt"] = "닫으려면 Enter를 누르세요",
@@ -546,7 +613,23 @@ internal sealed class ShutterMuteApp
                 ["Finished"] = "원클릭 작업이 완료되었습니다.",
                 ["ErrorPrefix"] = "오류:",
                 ["MuteFailed"] = "카메라 무음 적용에 실패했습니다.",
-                ["UnmuteFailed"] = "카메라 소리 복구에 실패했습니다."
+                ["UnmuteFailed"] = "카메라 소리 복구에 실패했습니다.",
+                ["SetEditUsingLocalApk"] = "지정한 SetEdit APK를 사용합니다: {0}",
+                ["SetEditUsingCachedApk"] = "기존 SetEdit APK를 사용합니다: {0}",
+                ["SetEditDownloading"] = "SetEdit APK를 다운로드합니다: {0}",
+                ["SetEditDownloadDone"] = "SetEdit APK 다운로드가 완료되었습니다: {0}",
+                ["SetEditApkNotFound"] = "SetEdit APK를 찾지 못했습니다: {0}",
+                ["SetEditInstalling"] = "SetEdit를 설치합니다.",
+                ["SetEditInstalled"] = "SetEdit 설치가 완료되었습니다.",
+                ["SetEditWriteSettingsGranted"] = "SetEdit WRITE_SETTINGS 권한을 허용했습니다.",
+                ["SetEditWriteSettingsFailed"] = "SetEdit WRITE_SETTINGS 권한 허용에 실패했습니다.",
+                ["SetEditSecureGranted"] = "SetEdit WRITE_SECURE_SETTINGS 권한을 부여했습니다.",
+                ["SetEditSecureSkipped"] = "SetEdit WRITE_SECURE_SETTINGS 권한 부여는 건너뛰었습니다.",
+                ["SetEditInstallFailed"] = "SetEdit 설치에 실패했습니다.",
+                ["SetEditOpenFailed"] = "SetEdit 실행에 실패했습니다.",
+                ["SetEditOpened"] = "SetEdit를 열었습니다.",
+                ["SetEditSetupDone"] = "SetEdit 준비가 완료되었습니다.",
+                ["InstallRetryingAfterUninstall"] = "{0} 기존 설치와 충돌해서 삭제 후 다시 설치합니다."
             },
             new Dictionary<string, string[]>
             {
@@ -562,6 +645,14 @@ internal sealed class ShutterMuteApp
                     "5. USB 디버깅을 켭니다.",
                     "6. USB 케이블을 다시 연결하고 가능하면 USB 사용 모드를 파일 전송으로 바꿉니다.",
                     "7. 휴대폰 화면의 USB 디버깅 허용 팝업에서 항상 이 컴퓨터를 허용을 체크하고 허용을 누릅니다."
+                ],
+                ["SetEditGuide"] =
+                [
+                    "SetEdit에서 바꿀 값 안내:",
+                    "1. Database를 System으로 둡니다.",
+                    $"2. key {CameraSettingKey} 를 찾습니다.",
+                    "3. 값을 0으로 바꾸면 무음, 1로 바꾸면 소리 복구입니다.",
+                    "4. 이 값이 막히면 SetEdit 방식도 함께 막힐 수 있습니다."
                 ]
             }
         );
@@ -575,6 +666,8 @@ internal sealed class ShutterMuteApp
                 ["ChooseAction"] = "実行する操作を選んでください",
                 ["MuteAction"] = "カメラ無音を適用",
                 ["UnmuteAction"] = "カメラ音を元に戻す",
+                ["SetEditSetupAction"] = "SetEdit をインストールして権限を付与",
+                ["SetEditOpenAction"] = "SetEdit を開く",
                 ["ExitAction"] = "終了",
                 ["ActionPrompt"] = "番号",
                 ["ClosePrompt"] = "閉じるには Enter を押してください",
@@ -597,7 +690,23 @@ internal sealed class ShutterMuteApp
                 ["Finished"] = "ワンクリック処理が完了しました。",
                 ["ErrorPrefix"] = "エラー:",
                 ["MuteFailed"] = "カメラ無音の適用に失敗しました。",
-                ["UnmuteFailed"] = "カメラ音の復元に失敗しました。"
+                ["UnmuteFailed"] = "カメラ音の復元に失敗しました。",
+                ["SetEditUsingLocalApk"] = "指定した SetEdit APK を使用します: {0}",
+                ["SetEditUsingCachedApk"] = "既存の SetEdit APK を使用します: {0}",
+                ["SetEditDownloading"] = "SetEdit APK をダウンロードします: {0}",
+                ["SetEditDownloadDone"] = "SetEdit APK のダウンロードが完了しました: {0}",
+                ["SetEditApkNotFound"] = "SetEdit APK が見つかりません: {0}",
+                ["SetEditInstalling"] = "SetEdit をインストールします。",
+                ["SetEditInstalled"] = "SetEdit のインストールが完了しました。",
+                ["SetEditWriteSettingsGranted"] = "SetEdit に WRITE_SETTINGS 権限を許可しました。",
+                ["SetEditWriteSettingsFailed"] = "SetEdit への WRITE_SETTINGS 権限付与に失敗しました。",
+                ["SetEditSecureGranted"] = "SetEdit に WRITE_SECURE_SETTINGS 権限を付与しました。",
+                ["SetEditSecureSkipped"] = "SetEdit への WRITE_SECURE_SETTINGS 権限付与はスキップしました。",
+                ["SetEditInstallFailed"] = "SetEdit のインストールに失敗しました。",
+                ["SetEditOpenFailed"] = "SetEdit の起動に失敗しました。",
+                ["SetEditOpened"] = "SetEdit を開きました。",
+                ["SetEditSetupDone"] = "SetEdit の準備が完了しました。",
+                ["InstallRetryingAfterUninstall"] = "{0} の既存インストールと競合したため、削除して再インストールします。"
             },
             new Dictionary<string, string[]>
             {
@@ -613,6 +722,14 @@ internal sealed class ShutterMuteApp
                     "5. USB デバッグをオンにします。",
                     "6. USB ケーブルを挿し直し、可能なら USB モードをファイル転送に変更します。",
                     "7. 端末に表示される USB デバッグ許可ポップアップで、このパソコンを常に許可をチェックして許可します。"
+                ],
+                ["SetEditGuide"] =
+                [
+                    "SetEdit で変更する値:",
+                    "1. Database を System にします。",
+                    $"2. key {CameraSettingKey} を探します。",
+                    "3. 値を 0 にすると無音、1 にすると音を戻せます。",
+                    "4. Samsung 側でこのキーが無効化されると SetEdit 方式も使えなくなる可能性があります。"
                 ]
             }
         );
