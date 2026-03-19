@@ -13,7 +13,20 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-[Unreleased]: https://github.com/ericswpark/camsung/compare/1.2.1..HEAD
+[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.5.0...HEAD
+
+# [1.5.0] - 2026-03-20
+
+## Added
+
+- Added `SetEdit setup` and `Open SetEdit` actions to the Windows EXE
+- Added EXE CLI options such as `setedit-setup`, `setedit-open`, `--setedit-apk`, and `--setedit-url`
+
+## Changed
+
+- Expanded the README with a detailed explanation of the direct ADB flow, the SetEdit flow, how the mute change works, and what can break across updates
+
+[1.5.0]: https://github.com/kkyyuu99/shuttermute/compare/v1.4.1...v1.5.0
 
 # [1.2.1] - 2025-10-09
 

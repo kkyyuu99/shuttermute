@@ -6,7 +6,20 @@
 
 # [미출시]
 
-[미출시]: https://github.com/ericswpark/camsung/compare/1.2.1..HEAD
+[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.5.0...HEAD
+
+# [1.5.0] - 2026-03-20
+
+## 추가
+
+- Windows EXE에 `SetEdit 설치와 권한 부여`, `SetEdit 열기` 작업 추가
+- `setedit-setup`, `setedit-open`, `--setedit-apk`, `--setedit-url` 같은 EXE CLI 인자 추가
+
+## 수정
+
+- README에 직접 ADB 방식과 SetEdit 방식의 차이, 실제 무음 처리 과정, 동작 원리, 업데이트 시 유지 가능성을 자세히 설명
+
+[1.5.0]: https://github.com/kkyyuu99/shuttermute/compare/v1.4.1...v1.5.0
 
 # [1.2.1] - 2025-10-09
 
