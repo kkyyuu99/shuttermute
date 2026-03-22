@@ -1,12 +1,31 @@
 <resources>
     <string name="app_name">ShutterMute Phone Bridge</string>
-    <string name="instructions">다른 안드로이드 폰을 ADB 호스트로 사용합니다. 대상 폰에서 개발자 옵션 > 무선 디버깅을 연 뒤, 표시되는 IP 주소, pairing port, connect port, 6자리 pairing code를 이 앱에 입력하세요.</string>
-    <string name="target_host_hint">대상 폰 IP 주소</string>
+    <string name="mode_title">연결 방식</string>
+    <string name="mode_self">이 휴대폰</string>
+    <string name="mode_other">다른 휴대폰</string>
+    <string name="mode_summary_self">이 휴대폰 스스로 무선 디버깅 호스트가 되도록 합니다. 별도 ADB 터미널 앱은 필요하지 않습니다.</string>
+    <string name="mode_summary_other">이 휴대폰으로 다른 안드로이드 휴대폰에 무선 디버깅 연결을 걸어 제어합니다.</string>
+    <string name="setup_title">무선 디버깅 준비</string>
+    <string name="instructions_self_phone">셀프 모드에서는 이 앱 안에서 바로 ADB 호스트를 처리합니다. 이 휴대폰에서 무선 디버깅을 켜고 pairing port와 connect port를 확인한 뒤, 다시 돌아와 페어링과 무음 명령을 진행하세요.</string>
+    <string name="instructions_other_phone">대상 휴대폰에서 개발자 옵션 &gt; 무선 디버깅을 열고, 표시되는 IP 주소, pairing port, connect port, 6자리 pairing code를 입력하세요.</string>
+    <string name="guide_steps_self_phone">1. 이 휴대폰을 Wi-Fi에 연결합니다.\n2. 삼성에서 ADB 도구를 막고 있다면 보안 및 개인 정보 보호에서 자동 차단을 끕니다.\n3. 휴대전화 정보 &gt; 소프트웨어 정보에서 빌드번호를 7번 눌러 개발자 옵션을 켭니다.\n4. 개발자 옵션에서 무선 디버깅을 켭니다.\n5. 페어링 코드로 기기 페어링을 눌러 pairing port, connect port, 6자리 코드를 확인합니다.\n6. 여기로 돌아와 Pair + Connect를 누른 뒤 Mute Camera 또는 Unmute Camera를 실행합니다.</string>
+    <string name="guide_steps_other_phone">1. 두 휴대폰을 같은 Wi-Fi에 연결합니다.\n2. 대상 삼성 휴대폰에서 ADB 도구를 막고 있다면 자동 차단을 끕니다.\n3. 대상 휴대폰에서 개발자 옵션과 무선 디버깅을 켭니다.\n4. 대상 휴대폰에서 페어링 코드로 기기 페어링을 누릅니다.\n5. 표시된 IP 주소, pairing port, connect port, 6자리 코드를 여기에 입력합니다.\n6. Pair + Connect를 누른 뒤 Mute Camera 또는 Unmute Camera를 실행합니다.</string>
+    <string name="guide_note_self_phone">팁: 앱을 오갈 때 페어링 화면이 사라지면 설정 앱과 ShutterMute를 분할 화면으로 띄우세요. 그래도 별도 터미널 앱은 필요하지 않습니다.</string>
+    <string name="guide_note_other_phone">팁: 한 번 페어링에 성공하면 이 앱이 ADB 키를 저장해 두므로 같은 휴대폰에서는 다음 연결이 더 빨라질 수 있습니다.</string>
+    <string name="action_open_security_settings">보안 열기</string>
+    <string name="action_open_phone_info">휴대전화 정보</string>
+    <string name="action_open_developer_options">개발자 옵션</string>
+    <string name="action_open_wifi_settings">Wi-Fi 열기</string>
+    <string name="action_refresh_self_host">이 휴대폰 IP 새로고침</string>
+    <string name="self_host_detected">감지된 이 휴대폰 IP: %1$s</string>
+    <string name="self_host_unavailable">아직 이 휴대폰 IP를 찾지 못했습니다. Wi-Fi에 연결한 뒤 다시 시도하세요.</string>
+    <string name="target_host_hint">대상 휴대폰 IP 주소</string>
     <string name="pairing_port_hint">pairing port</string>
     <string name="connect_port_hint">connect port</string>
     <string name="pairing_code_hint">6자리 pairing code</string>
-    <string name="status_idle">대상 폰 정보를 기다리는 중입니다.</string>
-    <string name="connected_status">대상 폰에 연결되었습니다.</string>
+    <string name="connection_title">ADB 페어링과 명령 실행</string>
+    <string name="status_idle">무선 디버깅 정보를 기다리는 중입니다.</string>
+    <string name="connected_status">대상 휴대폰에 연결되었습니다.</string>
     <string name="action_pair">페어링 후 연결</string>
     <string name="action_connect">연결</string>
     <string name="action_disconnect">연결 해제</string>
@@ -14,6 +33,9 @@
     <string name="action_mute">카메라 무음</string>
     <string name="action_unmute">소리 복구</string>
     <string name="log_label">세션 로그</string>
-    <string name="invalid_pairing_fields">호스트, pairing port, connect port, 6자리 pairing code를 모두 입력하세요.</string>
+    <string name="invalid_pairing_fields">필수 페어링 정보와 6자리 pairing code를 모두 입력하세요.</string>
     <string name="invalid_connect_fields">올바른 호스트와 connect port를 입력하세요.</string>
+    <string name="invalid_self_host">아직 이 휴대폰 IP를 쓸 수 없습니다. Wi-Fi에 연결한 뒤 셀프 호스트 주소를 새로고침하세요.</string>
+    <string name="settings_shortcut_fallback">이 휴대폰에서는 해당 바로가기를 열 수 없어 기본 설정 화면을 열었습니다. 필요한 메뉴로 직접 이동해 주세요.</string>
+    <string name="settings_shortcut_unavailable">이 휴대폰에서는 설정 바로가기를 열지 못했습니다.</string>
 </resources>

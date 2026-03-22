@@ -8,9 +8,10 @@
 ## 개요
 
 - Windows에서 삼성 카메라 셔터음을 ADB로 바로 무음 처리하는 원클릭 EXE입니다.
-- Android 폰이 다른 Android 폰에 무선 디버깅으로 연결해 무음/복구를 수행하는 `Phone Bridge` APK도 함께 배포합니다.
+- Android 폰이 다른 Android 폰에 무선 디버깅으로 연결하거나, 같은 폰 안에서 셀프 무선 디버깅으로 다시 연결할 수 있는 `Phone Bridge` APK도 함께 배포합니다.
 - EXE는 APK 설치가 필요 없고, 대상 PC에 ADB를 따로 설치할 필요가 없습니다.
 - Phone Bridge는 대상 폰의 무선 디버깅 정보(IP, pairing port, connect port, pairing code)가 필요합니다.
+- Phone Bridge 앱 안에는 무선 디버깅 준비를 돕는 설정 바로가기와 단계별 가이드가 포함되어 있습니다.
 
 ## 사용 전 준비
 
@@ -23,7 +24,7 @@
 
 - 첫 실행 시 EXE 내부의 ADB 파일이 `%LOCALAPPDATA%\ShutterMute\platform-tools`로 풀립니다.
 - 일부 삼성 펌웨어에서는 진동 또는 무음 모드가 필요할 수 있습니다.
-- Phone Bridge 버전은 다른 폰이 ADB 호스트 역할을 대신하는 방식이라, 컴퓨터 없이도 다른 폰을 통해 대상 폰에 연결할 수 있습니다.
+- Phone Bridge 버전은 다른 폰이 ADB 호스트 역할을 대신하거나 같은 폰 스스로 다시 연결하는 방식이라, 컴퓨터 없이도 사용할 수 있습니다.
 
 ## 면책 및 주의사항
 

@@ -1,11 +1,30 @@
 <resources>
     <string name="app_name">ShutterMute Phone Bridge</string>
-    <string name="instructions">Use another Android phone as the ADB host. On the target phone, open Developer options > Wireless debugging, then enter the IP address, pairing port, connect port, and the 6-digit pairing code shown there.</string>
+    <string name="mode_title">Connection mode</string>
+    <string name="mode_self">This phone</string>
+    <string name="mode_other">Another phone</string>
+    <string name="mode_summary_self">Use this phone as its own wireless debugging host. No extra ADB terminal app is required.</string>
+    <string name="mode_summary_other">Use this phone to connect to and control a different Android phone over wireless debugging.</string>
+    <string name="setup_title">Wireless debugging setup</string>
+    <string name="instructions_self_phone">Self mode keeps the ADB host inside this app. Turn on wireless debugging on this phone, note the pairing and connect ports, then come back here to pair and run the mute command.</string>
+    <string name="instructions_other_phone">On the target phone, open Developer options &gt; Wireless debugging, then enter the IP address, pairing port, connect port, and the 6-digit pairing code shown there.</string>
+    <string name="guide_steps_self_phone">1. Connect this phone to Wi-Fi.\n2. In Security and privacy, turn off Auto Blocker if Samsung is blocking ADB tools.\n3. In Phone info &gt; Software information, tap Build number 7 times.\n4. Open Developer options and turn on Wireless debugging.\n5. Tap Pair device with pairing code and copy the pairing port, connect port, and 6-digit code.\n6. Return here, tap Pair + Connect, then use Mute Camera or Unmute Camera.</string>
+    <string name="guide_steps_other_phone">1. Connect both phones to the same Wi-Fi network.\n2. On the target Samsung phone, turn off Auto Blocker if it is blocking ADB tools.\n3. On the target phone, enable Developer options and Wireless debugging.\n4. On the target phone, tap Pair device with pairing code.\n5. Enter the shown IP address, pairing port, connect port, and 6-digit code here.\n6. Tap Pair + Connect, then use Mute Camera or Unmute Camera.</string>
+    <string name="guide_note_self_phone">Tip: if the pairing sheet disappears when you switch apps, keep Settings and ShutterMute in split screen. You still do not need a separate terminal app.</string>
+    <string name="guide_note_other_phone">Tip: after the first successful pairing, this app keeps its ADB key and can reconnect faster on the same phone later.</string>
+    <string name="action_open_security_settings">Open Security</string>
+    <string name="action_open_phone_info">Open Phone Info</string>
+    <string name="action_open_developer_options">Open Developer Options</string>
+    <string name="action_open_wifi_settings">Open Wi-Fi</string>
+    <string name="action_refresh_self_host">Refresh this phone IP</string>
+    <string name="self_host_detected">Detected this phone IP: %1$s</string>
+    <string name="self_host_unavailable">Could not detect this phone IP yet. Connect to Wi-Fi, then try again.</string>
     <string name="target_host_hint">Target phone IP address</string>
     <string name="pairing_port_hint">Pairing port</string>
     <string name="connect_port_hint">Connect port</string>
     <string name="pairing_code_hint">6-digit pairing code</string>
-    <string name="status_idle">Waiting for target phone details.</string>
+    <string name="connection_title">ADB pairing and commands</string>
+    <string name="status_idle">Waiting for wireless debugging details.</string>
     <string name="connected_status">Connected to target phone.</string>
     <string name="action_pair">Pair + Connect</string>
     <string name="action_connect">Connect</string>
@@ -14,6 +33,9 @@
     <string name="action_mute">Mute Camera</string>
     <string name="action_unmute">Unmute Camera</string>
     <string name="log_label">Session Log</string>
-    <string name="invalid_pairing_fields">Enter host, pairing port, connect port, and a 6-digit pairing code.</string>
+    <string name="invalid_pairing_fields">Enter the required pairing details and a 6-digit pairing code.</string>
     <string name="invalid_connect_fields">Enter a valid host and connect port.</string>
+    <string name="invalid_self_host">This phone IP is not ready yet. Connect to Wi-Fi and refresh the self-host address.</string>
+    <string name="settings_shortcut_fallback">That shortcut is unavailable on this phone. Open the matching settings page manually from Settings.</string>
+    <string name="settings_shortcut_unavailable">Could not open the settings shortcut on this phone.</string>
 </resources>

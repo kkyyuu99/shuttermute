@@ -13,7 +13,20 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.1...HEAD
+[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.0...HEAD
+
+# [1.7.0] - 2026-03-22
+
+## Added
+
+- Added a self wireless debugging mode to `ShutterMute Phone Bridge` so the same Android phone can reconnect without a separate terminal app
+- Added in-app setup guidance and settings shortcuts for security, phone info, developer options, and Wi-Fi
+
+## Changed
+
+- Simplified the Phone Bridge flow by auto-detecting the current phone IP in self mode
+
+[1.7.0]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.1...v1.7.0
 
 # [1.6.1] - 2026-03-22
 

@@ -1,7 +1,7 @@
 # ShutterMute
 
 삼성 기본 카메라 셔터음을 Windows에서 ADB로 처리하는 도구입니다.  
-이 포크는 두 가지 배포물을 함께 제공합니다. Windows용 `ShutterMute.exe`로 바로 적용하는 방식과, 다른 안드로이드 폰이 ADB 호스트가 되는 `ShutterMute Phone Bridge` APK 방식입니다.
+이 포크는 두 가지 배포물을 함께 제공합니다. Windows용 `ShutterMute.exe`로 바로 적용하는 방식과, 다른 안드로이드 폰 또는 같은 안드로이드 폰 안에서 무선 디버깅을 처리할 수 있는 `ShutterMute Phone Bridge` APK 방식입니다.
 
 [최신 EXE 다운로드](https://github.com/kkyyuu99/shuttermute/releases/latest/download/ShutterMute.exe)
 [최신 Phone Bridge APK 다운로드](https://github.com/kkyyuu99/shuttermute/releases/latest/download/ShutterMute-PhoneBridge.apk)
@@ -10,7 +10,7 @@
 
 - 기본 배포 파일은 `ShutterMute.exe`와 `ShutterMute-PhoneBridge.apk`입니다.
 - EXE 안에 필요한 ADB 파일이 함께 들어 있으므로, Windows PC에 ADB를 따로 설치하지 않아도 됩니다.
-- Phone Bridge APK는 다른 안드로이드 폰이 무선 디버깅 호스트가 되어 대상 폰에 명령을 보냅니다.
+- Phone Bridge APK는 다른 안드로이드 폰이 무선 디버깅 호스트가 되어 대상 폰에 명령을 보내거나, 같은 폰 안에서 셀프 무선 디버깅 모드로 다시 연결할 수 있습니다.
 - 기존 Android 앱 소스는 레거시 참고용으로 저장소에 남아 있지만, 현재 기본 사용 흐름은 EXE와 Phone Bridge 기준입니다.
 - EXE에는 두 가지 방식이 함께 들어 있습니다.
   - `무음 적용 / 소리 복구`: PC에서 ADB로 바로 값 변경
@@ -54,11 +54,14 @@
 
 ### 3. Phone Bridge 방식
 
-- 다른 안드로이드 폰에 `ShutterMute-PhoneBridge.apk`를 설치합니다.
-- 대상 폰에서 개발자 옵션 > 무선 디버깅을 켜고, 표시되는 `IP 주소`, `pairing port`, `connect port`, `6자리 pairing code`를 Phone Bridge 앱에 입력합니다.
-- Phone Bridge 앱에서 `Pair + Connect`를 누르면 다른 폰이 ADB 호스트 역할을 하며 대상 폰과 페어링합니다.
-- 이후 같은 앱에서 `Mute Camera` 또는 `Unmute Camera`를 눌러 대상 폰의 셔터음 설정 키를 바꿉니다.
-- 이 방식은 컴퓨터 없이도 동작하지만, 두 폰이 같은 네트워크에 있어야 하고 대상 폰의 무선 디버깅이 열려 있어야 합니다.
+- `ShutterMute-PhoneBridge.apk`는 `이 휴대폰`과 `다른 휴대폰` 두 가지 모드를 제공합니다.
+- `이 휴대폰` 모드는 같은 폰 안에서 셀프 무선 디버깅을 다시 연결하는 흐름입니다. 별도의 ADB Shell 앱 없이 이 앱 안에서 바로 페어링과 명령 실행을 처리합니다.
+- `다른 휴대폰` 모드는 다른 안드로이드 폰이 ADB 호스트 역할을 하며 대상 폰과 페어링하는 흐름입니다.
+- 앱 상단의 인앱 가이드에서 `보안`, `휴대전화 정보`, `개발자 옵션`, `Wi-Fi` 설정 바로가기를 눌러 준비 과정을 따라갈 수 있습니다.
+- 셀프 모드에서는 현재 폰의 IP를 자동 감지하므로 `pairing port`, `connect port`, `6자리 pairing code` 중심으로 입력하면 됩니다.
+- 무선 디버깅 정보가 자꾸 사라지면 설정 앱과 ShutterMute를 분할 화면으로 띄워 동시에 볼 수 있습니다.
+- 이후 앱에서 `Pair + Connect`를 누른 뒤 `Mute Camera` 또는 `Unmute Camera`를 눌러 셔터음 설정 키를 바꿉니다.
+- 이 방식은 컴퓨터 없이도 동작하지만, 무선 디버깅은 사용자가 직접 켜야 하고 같은 네트워크 또는 같은 폰 내부 연결 상태가 준비되어 있어야 합니다.
 
 ## 실제로 무음이 되는 과정
 
@@ -122,7 +125,7 @@ Value: 0 (무음) / 1 (소리 복구)
 2. 그 키 값을 `0` 또는 `1`로 바꾸면 카메라 셔터음 동작이 달라진다.
 3. EXE 직접 방식은 ADB가 그 값을 바로 바꾼다.
 4. SetEdit 방식은 ADB로 한 번 설치와 권한만 준비해 두고, 이후에는 앱 안에서 같은 값을 바꾼다.
-5. Phone Bridge 방식은 다른 안드로이드 폰이 ADB 호스트가 되어, 컴퓨터 대신 같은 값을 원격으로 바꾼다.
+5. Phone Bridge 방식은 같은 폰의 셀프 무선 디버깅 또는 다른 안드로이드 폰을 ADB 호스트로 사용해, 컴퓨터 대신 같은 값을 바꾼다.
 
 중요한 점은 두 방식이 “다른 우회법”이 아니라는 것입니다.  
 셋 다 결국 같은 삼성 설정 키를 사용합니다. 따라서 삼성이 이 키를 제거하거나 무시하도록 바꾸면 세 방식 모두 막힐 수 있습니다.
@@ -133,7 +136,7 @@ Value: 0 (무음) / 1 (소리 복구)
 
 - `직접 적용 방식`은 업데이트 후에도 다시 EXE를 실행하면 바로 시도할 수 있습니다.
 - `SetEdit 방식`은 앱과 권한이 그대로 살아 있으면 더 편합니다. 폰 안에서 바로 값을 바꾸면 되기 때문입니다.
-- `Phone Bridge 방식`은 다른 폰만 있으면 컴퓨터 없이 다시 시도할 수 있지만, 대상 폰의 무선 디버깅 상태와 포트 정보가 필요합니다.
+- `Phone Bridge 방식`은 다른 폰이나 셀프 모드만 준비되면 컴퓨터 없이 다시 시도할 수 있지만, 무선 디버깅 상태와 포트 정보는 다시 확인해야 할 수 있습니다.
 - 다만 마이너 업데이트라도 권한이 풀리거나 키 동작이 바뀌면 다시 ADB 세팅이 필요할 수 있습니다.
 
 ### 메이저 판올림

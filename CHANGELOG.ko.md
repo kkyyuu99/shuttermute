@@ -6,7 +6,29 @@
 
 # [미출시]
 
-[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.0...HEAD
+[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.0...HEAD
+
+# [1.7.0] - 2026-03-22
+
+## 추가
+
+- `ShutterMute Phone Bridge`에 같은 휴대폰에서 다시 연결할 수 있는 셀프 무선 디버깅 모드 추가
+- 보안, 휴대전화 정보, 개발자 옵션, Wi-Fi로 바로 이동할 수 있는 인앱 설정 가이드와 바로가기 추가
+
+## 수정
+
+- 셀프 모드에서 현재 휴대폰 IP를 자동 감지해 Phone Bridge 입력 과정을 더 단순하게 정리
+
+[1.7.0]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.1...v1.7.0
+
+# [1.6.1] - 2026-03-22
+
+## 수정
+
+- GitHub Actions에서 전용 keystore로 Phone Bridge APK를 서명해 릴리스 빌드가 안정적으로 완료되도록 수정
+- 로컬 Phone Bridge APK 빌드 시 keystore가 없으면 debug keystore를 자동 생성하도록 수정
+
+[1.6.1]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.0...v1.6.1
 
 # [1.6.0] - 2026-03-22
 
