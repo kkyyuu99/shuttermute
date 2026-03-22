@@ -13,7 +13,16 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.1...HEAD
+
+# [1.7.1] - 2026-03-22
+
+## Changed
+
+- Clarified the `ShutterMute Phone Bridge` field names so the pairing popup port and the main wireless debugging port are explained separately
+- Added example values, inline field errors, and more actionable pairing or connection failure guidance in Phone Bridge
+
+[1.7.1]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.0...v1.7.1
 
 # [1.7.0] - 2026-03-22
 

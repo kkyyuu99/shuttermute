@@ -10,7 +10,7 @@
     <string name="instructions_other_phone">On the target phone, open Developer options &gt; Wireless debugging, then enter the IP address, pairing port, connect port, and the 6-digit pairing code shown there.</string>
     <string name="guide_steps_self_phone">1. Connect this phone to Wi-Fi.\n2. In Security and privacy, turn off Auto Blocker if Samsung is blocking ADB tools.\n3. In Phone info &gt; Software information, tap Build number 7 times.\n4. Open Developer options and turn on Wireless debugging.\n5. Tap Pair device with pairing code and copy the pairing port, connect port, and 6-digit code.\n6. Return here, tap Pair + Connect, then use Mute Camera or Unmute Camera.</string>
     <string name="guide_steps_other_phone">1. Connect both phones to the same Wi-Fi network.\n2. On the target Samsung phone, turn off Auto Blocker if it is blocking ADB tools.\n3. On the target phone, enable Developer options and Wireless debugging.\n4. On the target phone, tap Pair device with pairing code.\n5. Enter the shown IP address, pairing port, connect port, and 6-digit code here.\n6. Tap Pair + Connect, then use Mute Camera or Unmute Camera.</string>
-    <string name="guide_note_self_phone">Tip: if the pairing sheet disappears when you switch apps, keep Settings and ShutterMute in split screen. You still do not need a separate terminal app.</string>
+    <string name="guide_note_self_phone">Tip: if the pairing popup disappears when you switch apps, keep Settings and ShutterMute in split screen. When the popup closes, its pairing port usually stops working too.</string>
     <string name="guide_note_other_phone">Tip: after the first successful pairing, this app keeps its ADB key and can reconnect faster on the same phone later.</string>
     <string name="action_open_security_settings">Open Security</string>
     <string name="action_open_phone_info">Open Phone Info</string>
@@ -19,13 +19,33 @@
     <string name="action_refresh_self_host">Refresh this phone IP</string>
     <string name="self_host_detected">Detected this phone IP: %1$s</string>
     <string name="self_host_unavailable">Could not detect this phone IP yet. Connect to Wi-Fi, then try again.</string>
+    <string name="connection_help_self_phone">What each name means:\n- Pairing popup port = the IP:port shown inside the Pair device with pairing code popup\n- Wireless debugging port = the IP:port shown on the main Wireless debugging screen\nExample: if the popup shows 192.168.0.91:37261 and the main screen shows 192.168.0.91:37267, enter 37261 for Pairing popup port and 37267 for Wireless debugging port.</string>
+    <string name="connection_help_other_phone">What each target phone value means:\n- Pairing popup port = the target phone popup IP:port\n- Wireless debugging port = the target phone main Wireless debugging IP:port\nExample: if the target phone popup shows 192.168.0.91:37261 and the target main screen shows 192.168.0.91:37267, enter 37261 for Pairing popup port and 37267 for Wireless debugging port.</string>
     <string name="target_host_hint">Target phone IP address</string>
-    <string name="pairing_port_hint">Pairing port</string>
-    <string name="connect_port_hint">Connect port</string>
-    <string name="pairing_code_hint">6-digit pairing code</string>
+    <string name="target_host_placeholder">192.168.0.91</string>
+    <string name="pairing_port_hint">Pairing popup port</string>
+    <string name="pairing_port_helper">Use the IP:port shown inside the Pair device with pairing code popup.</string>
+    <string name="pairing_port_placeholder">37261</string>
+    <string name="connect_port_hint">Wireless debugging port</string>
+    <string name="connect_port_helper">Use the IP:port shown on the main Wireless debugging screen under the device name.</string>
+    <string name="connect_port_placeholder">37267</string>
+    <string name="pairing_code_hint">6-digit popup code</string>
+    <string name="pairing_code_helper">Use the 6-digit Wi-Fi pairing code shown in the popup.</string>
+    <string name="pairing_code_placeholder">709875</string>
     <string name="connection_title">ADB pairing and commands</string>
     <string name="status_idle">Waiting for wireless debugging details.</string>
     <string name="connected_status">Connected to target phone.</string>
+    <string name="status_pairing_failed">Pairing failed. Recheck the popup code and pairing popup port.</string>
+    <string name="status_pairing_port_refused">Pairing failed. The pairing popup port is not accepting connections.</string>
+    <string name="status_pairing_successful">Pairing successful.</string>
+    <string name="status_disconnected">Disconnected.</string>
+    <string name="status_unable_to_connect">Unable to connect to target phone.</string>
+    <string name="status_command_completed">Command completed.</string>
+    <string name="status_command_failed">Command failed.</string>
+    <string name="status_paired_and_connected">Paired and connected.</string>
+    <string name="status_connected">Connected.</string>
+    <string name="status_connection_failed">Connection failed.</string>
+    <string name="status_pairing_required">Connection failed. Pair first using the popup port and 6-digit code.</string>
     <string name="action_pair">Pair + Connect</string>
     <string name="action_connect">Connect</string>
     <string name="action_disconnect">Disconnect</string>
@@ -36,6 +56,14 @@
     <string name="invalid_pairing_fields">Enter the required pairing details and a 6-digit pairing code.</string>
     <string name="invalid_connect_fields">Enter a valid host and connect port.</string>
     <string name="invalid_self_host">This phone IP is not ready yet. Connect to Wi-Fi and refresh the self-host address.</string>
+    <string name="error_target_host_required">Enter the target phone IP from the Wireless debugging screen.</string>
+    <string name="error_pairing_port_required">Enter the popup port shown inside Pair device with pairing code.</string>
+    <string name="error_connect_port_required">Enter the main Wireless debugging port shown under the device name.</string>
+    <string name="error_pairing_code_required">Enter the 6-digit popup code exactly as shown.</string>
     <string name="settings_shortcut_fallback">That shortcut is unavailable on this phone. Open the matching settings page manually from Settings.</string>
     <string name="settings_shortcut_unavailable">Could not open the settings shortcut on this phone.</string>
+    <string name="log_pairing_failed">If pairing failed, reopen the pairing popup and double-check both the popup port and the 6-digit code.</string>
+    <string name="log_pairing_port_refused">The pairing popup port usually means the popup was closed, timed out, or the wrong port was entered. Use the popup IP:port, not the main Wireless debugging port.</string>
+    <string name="log_connection_failed">If connection failed, recheck the Wireless debugging port from the main screen under the device name.</string>
+    <string name="log_pairing_required">The connect port only works after pairing succeeds. Pair again with the popup port and the 6-digit code first.</string>
 </resources>

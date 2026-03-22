@@ -62,15 +62,20 @@ public class MainViewModel extends AndroidViewModel {
                 AbsAdbConnectionManager manager = BridgeConnectionManager.getInstance(getApplication());
                 boolean paired = manager.pair(host, pairingPort, pairingCode);
                 if (!paired) {
-                    statusText.postValue("Pairing failed.");
-                    appendLog("Pairing failed.");
+                    statusText.postValue(getString(R.string.status_pairing_failed));
+                    appendLog(getString(R.string.log_pairing_failed));
                     return;
                 }
-                statusText.postValue("Pairing successful.");
+                statusText.postValue(getString(R.string.status_pairing_successful));
                 appendLog("Pairing successful.");
                 connectInternal(host, connectPort, true);
             } catch (Throwable throwable) {
-                statusText.postValue("Pairing failed.");
+                if (isConnectionRefused(throwable)) {
+                    statusText.postValue(getString(R.string.status_pairing_port_refused));
+                    appendLog(getString(R.string.log_pairing_port_refused));
+                } else {
+                    statusText.postValue(getString(R.string.status_pairing_failed));
+                }
                 appendLog("Pairing failed: " + throwable.getMessage());
             }
         });
@@ -88,7 +93,7 @@ public class MainViewModel extends AndroidViewModel {
                 connectedHost = null;
                 connectedPort = -1;
                 connected.postValue(false);
-                statusText.postValue("Disconnected.");
+                statusText.postValue(getString(R.string.status_disconnected));
                 appendLog("Disconnected.");
             } catch (Throwable throwable) {
                 appendLog("Disconnect failed: " + throwable.getMessage());
@@ -112,20 +117,20 @@ public class MainViewModel extends AndroidViewModel {
         executor.submit(() -> {
             try {
                 if (!ensureConnected(host, connectPort)) {
-                    statusText.postValue("Unable to connect to target phone.");
+                    statusText.postValue(getString(R.string.status_unable_to_connect));
                     return;
                 }
 
                 appendLog("Running: " + command);
                 String output = executeShellCommand(command);
-                statusText.postValue("Command completed.");
+                statusText.postValue(getString(R.string.status_command_completed));
                 if (!output.isBlank()) {
                     appendLog(output.trim());
                 } else {
                     appendLog("Done.");
                 }
             } catch (Throwable throwable) {
-                statusText.postValue("Command failed.");
+                statusText.postValue(getString(R.string.status_command_failed));
                 appendLog("Command failed: " + throwable.getMessage());
             }
         });
@@ -136,14 +141,21 @@ public class MainViewModel extends AndroidViewModel {
             boolean result = ensureConnected(host, connectPort);
             connected.postValue(result);
             if (result) {
-                statusText.postValue(fromPairing ? "Paired and connected." : "Connected.");
+                statusText.postValue(getString(fromPairing
+                        ? R.string.status_paired_and_connected
+                        : R.string.status_connected));
             } else {
-                statusText.postValue("Connection failed.");
-                appendLog("Connection failed.");
+                statusText.postValue(getString(R.string.status_connection_failed));
+                appendLog(getString(R.string.log_connection_failed));
             }
         } catch (Throwable throwable) {
             connected.postValue(false);
-            statusText.postValue("Connection failed.");
+            if (isPairingRequired(throwable)) {
+                statusText.postValue(getString(R.string.status_pairing_required));
+                appendLog(getString(R.string.log_pairing_required));
+            } else {
+                statusText.postValue(getString(R.string.status_connection_failed));
+            }
             appendLog("Connection failed: " + throwable.getMessage());
         }
     }
@@ -186,5 +198,19 @@ public class MainViewModel extends AndroidViewModel {
         String current = logText.getValue();
         String next = (current == null || current.isBlank()) ? line : current + "\n" + line;
         logText.postValue(next);
+    }
+
+    private String getString(int resId) {
+        return getApplication().getString(resId);
+    }
+
+    private static boolean isConnectionRefused(Throwable throwable) {
+        String message = throwable.getMessage();
+        return message != null && message.contains("ECONNREFUSED");
+    }
+
+    private static boolean isPairingRequired(Throwable throwable) {
+        String message = throwable.getMessage();
+        return message != null && message.contains("ADB pairing is required");
     }
 }

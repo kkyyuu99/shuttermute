@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_USE_SELF_MODE = "use_self_mode";
 
     private TextInputLayout targetHostLayout;
+    private TextInputLayout pairingPortLayout;
+    private TextInputLayout connectPortLayout;
+    private TextInputLayout pairingCodeLayout;
     private AppCompatEditText hostInput;
     private AppCompatEditText pairingPortInput;
     private AppCompatEditText connectPortInput;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView instructionsView;
     private TextView guideStepsView;
     private TextView guideNoteView;
+    private TextView connectionHelpView;
     private TextView statusView;
     private TextView logView;
     private ScrollView logScroll;
@@ -60,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         targetHostLayout = findViewById(R.id.target_host_layout);
+        pairingPortLayout = findViewById(R.id.pairing_port_layout);
+        connectPortLayout = findViewById(R.id.connect_port_layout);
+        pairingCodeLayout = findViewById(R.id.pairing_code_layout);
         hostInput = findViewById(R.id.target_host);
         pairingPortInput = findViewById(R.id.pairing_port);
         connectPortInput = findViewById(R.id.connect_port);
@@ -69,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         instructionsView = findViewById(R.id.instructions_view);
         guideStepsView = findViewById(R.id.guide_steps_view);
         guideNoteView = findViewById(R.id.guide_note_view);
+        connectionHelpView = findViewById(R.id.connection_help_view);
         statusView = findViewById(R.id.connection_status);
         logView = findViewById(R.id.log_output);
         logScroll = findViewById(R.id.log_scroll);
@@ -109,14 +117,28 @@ public class MainActivity extends AppCompatActivity {
         wifiSettingsButton.setOnClickListener(v -> openSystemScreen(Settings.ACTION_WIFI_SETTINGS));
 
         pairButton.setOnClickListener(v -> {
+            clearFieldErrors();
             String host = resolveHost();
-            if (host == null) {
+            if (!validateHost(host)) {
                 return;
             }
             Integer pairingPort = parsePort(pairingPortInput);
             Integer connectPort = parsePort(connectPortInput);
             String pairingCode = requireText(pairingCodeInput);
-            if (pairingPort == null || connectPort == null || pairingCode == null || pairingCode.length() != 6) {
+            boolean hasError = false;
+            if (pairingPort == null) {
+                pairingPortLayout.setError(getString(R.string.error_pairing_port_required));
+                hasError = true;
+            }
+            if (connectPort == null) {
+                connectPortLayout.setError(getString(R.string.error_connect_port_required));
+                hasError = true;
+            }
+            if (pairingCode == null || pairingCode.length() != 6) {
+                pairingCodeLayout.setError(getString(R.string.error_pairing_code_required));
+                hasError = true;
+            }
+            if (hasError) {
                 statusView.setText(R.string.invalid_pairing_fields);
                 return;
             }
@@ -125,12 +147,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         connectButton.setOnClickListener(v -> {
+            clearFieldErrors();
             String host = resolveHost();
-            if (host == null) {
+            if (!validateHost(host)) {
                 return;
             }
             Integer connectPort = parsePort(connectPortInput);
             if (connectPort == null) {
+                connectPortLayout.setError(getString(R.string.error_connect_port_required));
                 statusView.setText(R.string.invalid_connect_fields);
                 return;
             }
@@ -141,12 +165,14 @@ public class MainActivity extends AppCompatActivity {
         disconnectButton.setOnClickListener(v -> viewModel.disconnect());
 
         muteButton.setOnClickListener(v -> {
+            clearFieldErrors();
             String host = resolveHost();
-            if (host == null) {
+            if (!validateHost(host)) {
                 return;
             }
             Integer connectPort = parsePort(connectPortInput);
             if (connectPort == null) {
+                connectPortLayout.setError(getString(R.string.error_connect_port_required));
                 statusView.setText(R.string.invalid_connect_fields);
                 return;
             }
@@ -155,12 +181,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         unmuteButton.setOnClickListener(v -> {
+            clearFieldErrors();
             String host = resolveHost();
-            if (host == null) {
+            if (!validateHost(host)) {
                 return;
             }
             Integer connectPort = parsePort(connectPortInput);
             if (connectPort == null) {
+                connectPortLayout.setError(getString(R.string.error_connect_port_required));
                 statusView.setText(R.string.invalid_connect_fields);
                 return;
             }
@@ -172,11 +200,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void bindObservers() {
-        viewModel.watchConnected().observe(this, connected -> {
-            if (Boolean.TRUE.equals(connected)) {
-                statusView.setText(R.string.connected_status);
-            }
-        });
+        viewModel.watchConnected().observe(this, connected -> clearFieldErrors());
         viewModel.watchStatusText().observe(this, status -> {
             if (!TextUtils.isEmpty(status)) {
                 statusView.setText(status);
@@ -216,6 +240,8 @@ public class MainActivity extends AppCompatActivity {
         instructionsView.setText(selfMode ? R.string.instructions_self_phone : R.string.instructions_other_phone);
         guideStepsView.setText(selfMode ? R.string.guide_steps_self_phone : R.string.guide_steps_other_phone);
         guideNoteView.setText(selfMode ? R.string.guide_note_self_phone : R.string.guide_note_other_phone);
+        connectionHelpView.setText(selfMode ? R.string.connection_help_self_phone : R.string.connection_help_other_phone);
+        clearFieldErrors();
 
         if (selfMode) {
             refreshSelfHostSummary();
@@ -243,6 +269,24 @@ public class MainActivity extends AppCompatActivity {
         } else {
             selfHostSummaryView.setText(getString(R.string.self_host_detected, host));
         }
+    }
+
+    private boolean validateHost(@Nullable String host) {
+        if (host != null) {
+            return true;
+        }
+
+        if (!isSelfMode()) {
+            targetHostLayout.setError(getString(R.string.error_target_host_required));
+        }
+        return false;
+    }
+
+    private void clearFieldErrors() {
+        targetHostLayout.setError(null);
+        pairingPortLayout.setError(null);
+        connectPortLayout.setError(null);
+        pairingCodeLayout.setError(null);
     }
 
     private void openSystemScreen(String action) {

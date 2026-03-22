@@ -203,12 +203,21 @@
                 android:text="@string/connection_title"
                 android:textAppearance="?attr/textAppearanceTitleMedium" />
 
+            <TextView
+                android:id="@+id/connection_help_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                tools:text="Pairing popup port = popup IP:port&#10;Connect port = main Wireless debugging IP:port" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/target_host_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="@string/target_host_hint">
+                android:hint="@string/target_host_hint"
+                app:placeholderText="@string/target_host_placeholder">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/target_host"
@@ -219,10 +228,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/pairing_port_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/pairing_port_hint">
+                android:hint="@string/pairing_port_hint"
+                app:helperText="@string/pairing_port_helper"
+                app:placeholderText="@string/pairing_port_placeholder">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/pairing_port"
@@ -233,10 +245,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/connect_port_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/connect_port_hint">
+                android:hint="@string/connect_port_hint"
+                app:helperText="@string/connect_port_helper"
+                app:placeholderText="@string/connect_port_placeholder">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/connect_port"
@@ -247,10 +262,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/pairing_code_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/pairing_code_hint">
+                android:hint="@string/pairing_code_hint"
+                app:helperText="@string/pairing_code_helper"
+                app:placeholderText="@string/pairing_code_placeholder">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/pairing_code"

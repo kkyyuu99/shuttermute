@@ -6,7 +6,16 @@
 
 # [미출시]
 
-[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.0...HEAD
+[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.1...HEAD
+
+# [1.7.1] - 2026-03-22
+
+## 수정
+
+- `ShutterMute Phone Bridge`에서 페어링 팝업 포트와 무선 디버깅 메인 화면 포트의 뜻을 각각 따로 설명하도록 명칭과 안내 문구를 정리
+- Phone Bridge에 예시 값, 입력칸별 오류 표시, 페어링/연결 실패 시 더 직접적인 원인 안내를 추가
+
+[1.7.1]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.0...v1.7.1
 
 # [1.7.0] - 2026-03-22
 
