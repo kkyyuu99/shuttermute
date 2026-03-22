@@ -6,7 +6,20 @@
 
 # [미출시]
 
-[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.5.0...HEAD
+[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.0...HEAD
+
+# [1.6.0] - 2026-03-22
+
+## 추가
+
+- 다른 안드로이드 폰이 무선 디버깅 호스트가 되어 대상 폰을 페어링하고 무음/복구를 실행하는 `ShutterMute Phone Bridge` APK 추가
+- GitHub 릴리스에 `ShutterMute.exe`와 `ShutterMute-PhoneBridge.apk`를 함께 배포하는 자동화 추가
+
+## 수정
+
+- README와 릴리스 노트에 Phone Bridge 사용 방법과 두 배포물 구조를 반영
+
+[1.6.0]: https://github.com/kkyyuu99/shuttermute/compare/v1.5.0...v1.6.0
 
 # [1.5.0] - 2026-03-20
 

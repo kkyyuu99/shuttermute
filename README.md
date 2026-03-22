@@ -1,15 +1,17 @@
 # ShutterMute
 
 삼성 기본 카메라 셔터음을 Windows에서 ADB로 처리하는 도구입니다.  
-이 포크는 기존 APK 중심 흐름보다, `ShutterMute.exe` 하나로 바로 적용하거나 `SetEdit`를 준비해 두고 폰에서 직접 바꾸는 흐름에 초점을 맞춥니다.
+이 포크는 두 가지 배포물을 함께 제공합니다. Windows용 `ShutterMute.exe`로 바로 적용하는 방식과, 다른 안드로이드 폰이 ADB 호스트가 되는 `ShutterMute Phone Bridge` APK 방식입니다.
 
 [최신 EXE 다운로드](https://github.com/kkyyuu99/shuttermute/releases/latest/download/ShutterMute.exe)
+[최신 Phone Bridge APK 다운로드](https://github.com/kkyyuu99/shuttermute/releases/latest/download/ShutterMute-PhoneBridge.apk)
 
 ## 이 저장소의 현재 기준
 
-- 기본 배포 파일은 `ShutterMute.exe`입니다.
+- 기본 배포 파일은 `ShutterMute.exe`와 `ShutterMute-PhoneBridge.apk`입니다.
 - EXE 안에 필요한 ADB 파일이 함께 들어 있으므로, Windows PC에 ADB를 따로 설치하지 않아도 됩니다.
-- 기존 Android 앱 소스는 레거시 참고용으로 저장소에 남아 있지만, 현재 기본 사용 흐름은 EXE 기준입니다.
+- Phone Bridge APK는 다른 안드로이드 폰이 무선 디버깅 호스트가 되어 대상 폰에 명령을 보냅니다.
+- 기존 Android 앱 소스는 레거시 참고용으로 저장소에 남아 있지만, 현재 기본 사용 흐름은 EXE와 Phone Bridge 기준입니다.
 - EXE에는 두 가지 방식이 함께 들어 있습니다.
   - `무음 적용 / 소리 복구`: PC에서 ADB로 바로 값 변경
   - `SetEdit 설치와 권한 부여 / SetEdit 열기`: SetEdit를 준비해 두고 폰에서 직접 값 변경
@@ -49,6 +51,14 @@
 - 이어서 `WRITE_SETTINGS`와 `WRITE_SECURE_SETTINGS` 권한을 부여합니다.
 - 기본값으로 SetEdit 앱까지 바로 열어 줍니다.
 - 이후에는 PC 없이 폰 안에서 SetEdit를 열어 값을 바꿀 수 있어서, 마이너 업데이트 이후나 평소 재적용 때 덜 번거롭습니다.
+
+### 3. Phone Bridge 방식
+
+- 다른 안드로이드 폰에 `ShutterMute-PhoneBridge.apk`를 설치합니다.
+- 대상 폰에서 개발자 옵션 > 무선 디버깅을 켜고, 표시되는 `IP 주소`, `pairing port`, `connect port`, `6자리 pairing code`를 Phone Bridge 앱에 입력합니다.
+- Phone Bridge 앱에서 `Pair + Connect`를 누르면 다른 폰이 ADB 호스트 역할을 하며 대상 폰과 페어링합니다.
+- 이후 같은 앱에서 `Mute Camera` 또는 `Unmute Camera`를 눌러 대상 폰의 셔터음 설정 키를 바꿉니다.
+- 이 방식은 컴퓨터 없이도 동작하지만, 두 폰이 같은 네트워크에 있어야 하고 대상 폰의 무선 디버깅이 열려 있어야 합니다.
 
 ## 실제로 무음이 되는 과정
 
@@ -112,9 +122,10 @@ Value: 0 (무음) / 1 (소리 복구)
 2. 그 키 값을 `0` 또는 `1`로 바꾸면 카메라 셔터음 동작이 달라진다.
 3. EXE 직접 방식은 ADB가 그 값을 바로 바꾼다.
 4. SetEdit 방식은 ADB로 한 번 설치와 권한만 준비해 두고, 이후에는 앱 안에서 같은 값을 바꾼다.
+5. Phone Bridge 방식은 다른 안드로이드 폰이 ADB 호스트가 되어, 컴퓨터 대신 같은 값을 원격으로 바꾼다.
 
 중요한 점은 두 방식이 “다른 우회법”이 아니라는 것입니다.  
-둘 다 결국 같은 삼성 설정 키를 사용합니다. 따라서 삼성이 이 키를 제거하거나 무시하도록 바꾸면 두 방식 모두 막힐 수 있습니다.
+셋 다 결국 같은 삼성 설정 키를 사용합니다. 따라서 삼성이 이 키를 제거하거나 무시하도록 바꾸면 세 방식 모두 막힐 수 있습니다.
 
 ## 업데이트와 유지 가능성
 
@@ -122,13 +133,15 @@ Value: 0 (무음) / 1 (소리 복구)
 
 - `직접 적용 방식`은 업데이트 후에도 다시 EXE를 실행하면 바로 시도할 수 있습니다.
 - `SetEdit 방식`은 앱과 권한이 그대로 살아 있으면 더 편합니다. 폰 안에서 바로 값을 바꾸면 되기 때문입니다.
+- `Phone Bridge 방식`은 다른 폰만 있으면 컴퓨터 없이 다시 시도할 수 있지만, 대상 폰의 무선 디버깅 상태와 포트 정보가 필요합니다.
 - 다만 마이너 업데이트라도 권한이 풀리거나 키 동작이 바뀌면 다시 ADB 세팅이 필요할 수 있습니다.
 
 ### 메이저 판올림
 
 - Android 메이저 업그레이드나 One UI 큰 판올림에서는 앱 설치 상태, 권한, 키 동작 중 하나 이상이 바뀔 가능성이 더 큽니다.
 - 이 경우 `SetEdit`도 다시 설치하거나 권한을 다시 부여해야 할 수 있습니다.
-- 가장 중요한 건 “삼성 쪽 키가 여전히 먹는지”입니다. 이게 막히면 직접 방식과 SetEdit 방식이 함께 막힙니다.
+- Phone Bridge 방식도 무선 디버깅 페어링을 다시 해야 하거나, 대상 포트가 바뀔 수 있습니다.
+- 가장 중요한 건 “삼성 쪽 키가 여전히 먹는지”입니다. 이게 막히면 직접 방식, SetEdit 방식, Phone Bridge 방식이 함께 막힙니다.
 
 ## 한계와 주의점
 
@@ -170,6 +183,9 @@ ShutterMute.exe --language ko --action mute --skip-vibrate
 
 - [tools/ShutterMuteExe/Program.cs](tools/ShutterMuteExe/Program.cs): 콘솔 진입점과 공통 흐름
 - [tools/ShutterMuteExe/SetEditWorkflow.cs](tools/ShutterMuteExe/SetEditWorkflow.cs): SetEdit 다운로드, 설치, 권한 부여 흐름
+- [phonebridge/src/main/java/io/github/kkyyuu/shuttermute/phonebridge/MainActivity.java](phonebridge/src/main/java/io/github/kkyyuu/shuttermute/phonebridge/MainActivity.java): 폰투폰 앱 UI
+- [phonebridge/src/main/java/io/github/kkyyuu/shuttermute/phonebridge/MainViewModel.java](phonebridge/src/main/java/io/github/kkyyuu/shuttermute/phonebridge/MainViewModel.java): 무선 디버깅 페어링, 연결, 무음 명령 실행
+- [tools/publish-phonebridge-apk.ps1](tools/publish-phonebridge-apk.ps1): 폰투폰 APK 빌드 스크립트
 - [tools/publish-shuttermute-exe.ps1](tools/publish-shuttermute-exe.ps1): EXE 빌드 스크립트
 - [tools/ShutterMuteAdbTool.ps1](tools/ShutterMuteAdbTool.ps1): 이전 PowerShell 기반 도구
 

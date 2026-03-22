@@ -13,7 +13,20 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.0...HEAD
+
+# [1.6.0] - 2026-03-22
+
+## Added
+
+- Added a `ShutterMute Phone Bridge` APK that lets one Android phone pair with and control another phone over Wireless debugging
+- Added release automation so GitHub releases now ship both `ShutterMute.exe` and `ShutterMute-PhoneBridge.apk`
+
+## Changed
+
+- Updated the README and release notes to explain the two-distribution model and the Phone Bridge workflow
+
+[1.6.0]: https://github.com/kkyyuu99/shuttermute/compare/v1.5.0...v1.6.0
 
 # [1.5.0] - 2026-03-20
 

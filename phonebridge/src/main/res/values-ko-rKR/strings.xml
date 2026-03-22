@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">ShutterMute Phone Bridge</string>
+    <string name="instructions">다른 안드로이드 폰을 ADB 호스트로 사용합니다. 대상 폰에서 개발자 옵션 > 무선 디버깅을 연 뒤, 표시되는 IP 주소, pairing port, connect port, 6자리 pairing code를 이 앱에 입력하세요.</string>
+    <string name="target_host_hint">대상 폰 IP 주소</string>
+    <string name="pairing_port_hint">pairing port</string>
+    <string name="connect_port_hint">connect port</string>
+    <string name="pairing_code_hint">6자리 pairing code</string>
+    <string name="status_idle">대상 폰 정보를 기다리는 중입니다.</string>
+    <string name="connected_status">대상 폰에 연결되었습니다.</string>
+    <string name="action_pair">페어링 후 연결</string>
+    <string name="action_connect">연결</string>
+    <string name="action_disconnect">연결 해제</string>
+    <string name="action_clear_log">로그 지우기</string>
+    <string name="action_mute">카메라 무음</string>
+    <string name="action_unmute">소리 복구</string>
+    <string name="log_label">세션 로그</string>
+    <string name="invalid_pairing_fields">호스트, pairing port, connect port, 6자리 pairing code를 모두 입력하세요.</string>
+    <string name="invalid_connect_fields">올바른 호스트와 connect port를 입력하세요.</string>
+</resources>

@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">ShutterMute Phone Bridge</string>
+    <string name="instructions">Use another Android phone as the ADB host. On the target phone, open Developer options > Wireless debugging, then enter the IP address, pairing port, connect port, and the 6-digit pairing code shown there.</string>
+    <string name="target_host_hint">Target phone IP address</string>
+    <string name="pairing_port_hint">Pairing port</string>
+    <string name="connect_port_hint">Connect port</string>
+    <string name="pairing_code_hint">6-digit pairing code</string>
+    <string name="status_idle">Waiting for target phone details.</string>
+    <string name="connected_status">Connected to target phone.</string>
+    <string name="action_pair">Pair + Connect</string>
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="action_clear_log">Clear Log</string>
+    <string name="action_mute">Mute Camera</string>
+    <string name="action_unmute">Unmute Camera</string>
+    <string name="log_label">Session Log</string>
+    <string name="invalid_pairing_fields">Enter host, pairing port, connect port, and a 6-digit pairing code.</string>
+    <string name="invalid_connect_fields">Enter a valid host and connect port.</string>
+</resources>
