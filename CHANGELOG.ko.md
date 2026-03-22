@@ -6,7 +6,16 @@
 
 # [미출시]
 
-[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.1...HEAD
+[미출시]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.2...HEAD
+
+# [1.7.2] - 2026-03-22
+
+## 수정
+
+- `ShutterMute Phone Bridge`에서 `settings put` 직후 셸 스트림이 닫혀도 곧바로 실패처럼 보이던 문제를 수정
+- 무음/복구 명령 뒤에 카메라 설정 값을 다시 읽어 실제 적용 여부를 검증하도록 추가
+
+[1.7.2]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.1...v1.7.2
 
 # [1.7.1] - 2026-03-22
 

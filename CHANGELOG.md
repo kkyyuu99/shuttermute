@@ -13,7 +13,16 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.1...HEAD
+[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.2...HEAD
+
+# [1.7.2] - 2026-03-22
+
+## Fixed
+
+- Fixed `ShutterMute Phone Bridge` so a shell stream closing right after `settings put` no longer appears as an immediate failure without verification
+- Added a follow-up readback check that verifies the camera setting value after mute or unmute commands
+
+[1.7.2]: https://github.com/kkyyuu99/shuttermute/compare/v1.7.1...v1.7.2
 
 # [1.7.1] - 2026-03-22
 

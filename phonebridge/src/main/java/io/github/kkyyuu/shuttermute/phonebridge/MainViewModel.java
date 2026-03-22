@@ -18,6 +18,8 @@ import io.github.muntashirakon.adb.AdbStream;
 
 public class MainViewModel extends AndroidViewModel {
     private static final String CAMERA_SETTING_KEY = "csc_pref_camera_forced_shuttersound_key";
+    private static final String CAMERA_SETTING_MUTE = "0";
+    private static final String CAMERA_SETTING_UNMUTE = "1";
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final MutableLiveData<Boolean> connected = new MutableLiveData<>(false);
@@ -102,11 +104,11 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void mute(String host, int connectPort) {
-        runCommand(host, connectPort, "settings put system " + CAMERA_SETTING_KEY + " 0");
+        runCameraSettingCommand(host, connectPort, CAMERA_SETTING_MUTE);
     }
 
     public void unmute(String host, int connectPort) {
-        runCommand(host, connectPort, "settings put system " + CAMERA_SETTING_KEY + " 1");
+        runCameraSettingCommand(host, connectPort, CAMERA_SETTING_UNMUTE);
     }
 
     public void clearLog() {
@@ -128,6 +130,44 @@ public class MainViewModel extends AndroidViewModel {
                     appendLog(output.trim());
                 } else {
                     appendLog("Done.");
+                }
+            } catch (Throwable throwable) {
+                statusText.postValue(getString(R.string.status_command_failed));
+                appendLog("Command failed: " + throwable.getMessage());
+            }
+        });
+    }
+
+    private void runCameraSettingCommand(String host, int connectPort, String expectedValue) {
+        executor.submit(() -> {
+            try {
+                if (!ensureConnected(host, connectPort)) {
+                    statusText.postValue(getString(R.string.status_unable_to_connect));
+                    return;
+                }
+
+                String command = "settings put system " + CAMERA_SETTING_KEY + " " + expectedValue;
+                appendLog("Running: " + command);
+                try {
+                    String output = executeShellCommand(command);
+                    if (!output.isBlank()) {
+                        appendLog(output.trim());
+                    }
+                } catch (Throwable throwable) {
+                    if (isStreamClosed(throwable)) {
+                        appendLog(getString(R.string.log_stream_closed_verifying));
+                    } else {
+                        throw throwable;
+                    }
+                }
+
+                String currentValue = executeShellCommand("settings get system " + CAMERA_SETTING_KEY).trim();
+                if (expectedValue.equals(currentValue)) {
+                    statusText.postValue(getString(R.string.status_command_completed));
+                    appendLog(getString(R.string.log_setting_verified, currentValue));
+                } else {
+                    statusText.postValue(getString(R.string.status_command_failed));
+                    appendLog(getString(R.string.log_setting_verify_failed, expectedValue, currentValue));
                 }
             } catch (Throwable throwable) {
                 statusText.postValue(getString(R.string.status_command_failed));
@@ -204,6 +244,10 @@ public class MainViewModel extends AndroidViewModel {
         return getApplication().getString(resId);
     }
 
+    private String getString(int resId, Object... formatArgs) {
+        return getApplication().getString(resId, formatArgs);
+    }
+
     private static boolean isConnectionRefused(Throwable throwable) {
         String message = throwable.getMessage();
         return message != null && message.contains("ECONNREFUSED");
@@ -212,5 +256,10 @@ public class MainViewModel extends AndroidViewModel {
     private static boolean isPairingRequired(Throwable throwable) {
         String message = throwable.getMessage();
         return message != null && message.contains("ADB pairing is required");
+    }
+
+    private static boolean isStreamClosed(Throwable throwable) {
+        String message = throwable.getMessage();
+        return message != null && message.contains("Stream closed");
     }
 }

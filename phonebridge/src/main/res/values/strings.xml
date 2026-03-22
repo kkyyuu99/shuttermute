@@ -66,4 +66,7 @@
     <string name="log_pairing_port_refused">The pairing popup port usually means the popup was closed, timed out, or the wrong port was entered. Use the popup IP:port, not the main Wireless debugging port.</string>
     <string name="log_connection_failed">If connection failed, recheck the Wireless debugging port from the main screen under the device name.</string>
     <string name="log_pairing_required">The connect port only works after pairing succeeds. Pair again with the popup port and the 6-digit code first.</string>
+    <string name="log_stream_closed_verifying">The device closed the shell stream right after running the command. Verifying the setting value now.</string>
+    <string name="log_setting_verified">Verified camera setting value: %1$s</string>
+    <string name="log_setting_verify_failed">The command finished, but the camera setting value did not match. Expected %1$s, current value is %2$s.</string>
 </resources>

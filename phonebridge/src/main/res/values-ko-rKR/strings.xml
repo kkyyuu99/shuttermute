@@ -66,4 +66,7 @@
     <string name="log_pairing_port_refused">페어링 팝업 포트 오류는 팝업이 닫혔거나 시간이 지났거나 잘못된 포트를 넣었을 때 자주 발생합니다. 무선 디버깅 메인 화면 포트가 아니라 팝업 IP:port를 사용하세요.</string>
     <string name="log_connection_failed">연결이 실패하면 기기 이름 아래 무선 디버깅 메인 화면 포트를 다시 확인하세요.</string>
     <string name="log_pairing_required">connect port는 페어링이 끝난 뒤에만 동작합니다. 먼저 팝업 포트와 6자리 코드로 다시 페어링하세요.</string>
+    <string name="log_stream_closed_verifying">기기가 명령 직후 셸 스트림을 닫았습니다. 지금 실제 설정값을 다시 확인합니다.</string>
+    <string name="log_setting_verified">확인된 카메라 설정 값: %1$s</string>
+    <string name="log_setting_verify_failed">명령은 끝났지만 카메라 설정 값이 예상과 다릅니다. 기대값은 %1$s, 현재 값은 %2$s입니다.</string>
 </resources>
