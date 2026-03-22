@@ -13,7 +13,16 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.1...HEAD
+
+# [1.6.1] - 2026-03-22
+
+## Fixed
+
+- Fixed the Phone Bridge release pipeline by signing the APK with a dedicated keystore in GitHub Actions
+- Made local Phone Bridge APK builds create a debug keystore automatically when one is missing
+
+[1.6.1]: https://github.com/kkyyuu99/shuttermute/compare/v1.6.0...v1.6.1
 
 # [1.6.0] - 2026-03-22
 

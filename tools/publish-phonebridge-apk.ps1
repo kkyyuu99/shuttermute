@@ -30,6 +30,30 @@ if (-not $env:ANDROID_HOME) {
     throw 'ANDROID_HOME 또는 local.properties 없이 Android SDK를 찾을 수 없습니다.'
 }
 
+if (-not $env:PHONEBRIDGE_KEYSTORE_FILE) {
+    $debugKeystore = Join-Path $env:USERPROFILE '.android\debug.keystore'
+    if (-not (Test-Path $debugKeystore)) {
+        $debugKeystoreDir = Split-Path -Path $debugKeystore -Parent
+        New-Item -ItemType Directory -Force -Path $debugKeystoreDir | Out-Null
+
+        & keytool `
+            -genkeypair `
+            -storetype JKS `
+            -keystore $debugKeystore `
+            -storepass android `
+            -alias androiddebugkey `
+            -keypass android `
+            -keyalg RSA `
+            -keysize 2048 `
+            -validity 10000 `
+            -dname 'CN=Android Debug,O=Android,C=US' | Out-Null
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "Debug keystore 생성에 실패했습니다: $debugKeystore"
+        }
+    }
+}
+
 Push-Location $repoRoot
 try {
     ./gradlew ":phonebridge:assemble$Configuration"

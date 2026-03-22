@@ -32,7 +32,22 @@ jobs:
       - name: Install Android platform-tools
         shell: pwsh
         run: |
-          sdkmanager "platform-tools"
+          $licenses = @('y','y','y','y','y','y','y','y','y','y') -join [Environment]::NewLine
+          $licenses | sdkmanager --licenses | Out-Null
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0"
+
+      - name: Restore phone bridge signing key
+        shell: pwsh
+        env:
+          PHONEBRIDGE_KEYSTORE_BASE64: ${{ secrets.PHONEBRIDGE_KEYSTORE_BASE64 }}
+        run: |
+          if (-not $env:PHONEBRIDGE_KEYSTORE_BASE64) {
+            throw "PHONEBRIDGE_KEYSTORE_BASE64 secret is not configured."
+          }
+
+          $keyPath = Join-Path $env:RUNNER_TEMP 'phonebridge-release.keystore'
+          [IO.File]::WriteAllBytes($keyPath, [Convert]::FromBase64String($env:PHONEBRIDGE_KEYSTORE_BASE64))
+          "PHONEBRIDGE_KEYSTORE_FILE=$keyPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Build one-click EXE
         shell: pwsh
@@ -41,6 +56,10 @@ jobs:
 
       - name: Build phone-to-phone APK
         shell: pwsh
+        env:
+          PHONEBRIDGE_KEYSTORE_PASSWORD: android
+          PHONEBRIDGE_KEY_ALIAS: androiddebugkey
+          PHONEBRIDGE_KEY_PASSWORD: android
         run: |
           ./tools/publish-phonebridge-apk.ps1
 
